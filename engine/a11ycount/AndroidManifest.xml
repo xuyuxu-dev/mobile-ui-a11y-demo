@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="com.demo.a11ycount" android:versionCode="1" android:versionName="1.0">
+    <uses-sdk android:minSdkVersion="24" android:targetSdkVersion="29" />
+    <application android:label="无障碍计数夹具">
+        <service android:name=".CountService"
+            android:permission="android.permission.BIND_ACCESSIBILITY_SERVICE"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.accessibilityservice.AccessibilityService" />
+            </intent-filter>
+            <meta-data android:name="android.accessibilityservice"
+                android:resource="@xml/count_service" />
+        </service>
+        <receiver android:name=".CountReceiver" android:exported="true">
+            <intent-filter>
+                <action android:name="com.demo.a11ycount.COUNT" />
+            </intent-filter>
+        </receiver>
+    </application>
+</manifest>

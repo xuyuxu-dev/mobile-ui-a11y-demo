@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">无障碍计数夹具</string>
+    <string name="desc">只统计节点数，不点击、不输入（demo 用）</string>
+</resources>

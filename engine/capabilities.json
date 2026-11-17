@@ -1,0 +1,15 @@
+{
+  "comment": "流程允许驱动的目标（默认拒绝）。只放演示用目标；真实平台不在其中。",
+  "actions": ["android.settings."],
+  "packages": [
+    "com.android.settings",
+    "com.huawei.calculator",
+    "com.android.deskclock",
+    "com.android.calendar",
+    "com.demo.canvas",
+    "canvas-fixture"
+  ],
+  "components": [
+    "com.demo.canvas/.MainActivity"
+  ]
+}

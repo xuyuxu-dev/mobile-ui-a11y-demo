@@ -1,0 +1,10 @@
+{
+  "name": "canvas-visual",
+  "description": "自绘页面（无障碍节点为 0）：先回桌面保证状态干净，再用截图哈希证明启动动作产生了效果。",
+  "steps": [
+    {"op": "home"},
+    {"op": "launch", "component": "com.demo.canvas/.MainActivity"},
+    {"op": "assert_changed", "timeout": 5000, "desc": "启动后画面应已变化"},
+    {"op": "assert_stable", "timeout": 4000, "desc": "静止后应出现连续两帧一致"}
+  ]
+}

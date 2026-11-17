@@ -1,0 +1,8 @@
+{
+  "name": "bad-text",
+  "description": "负向用例：故意找一个不存在的文字，验证失败能定位到具体步骤。",
+  "steps": [
+    {"op": "launch", "action": "android.settings.SETTINGS", "settle_text": "声音"},
+    {"op": "assert_text", "text": "这一段文字不应该存在ABCXYZ", "timeout": 2500, "desc": "预期失败"}
+  ]
+}

@@ -1,0 +1,8 @@
+{
+  "name": "should-fail-changed",
+  "description": "负向用例：画面静止时断言「发生了变化」必须失败，否则说明断言没有约束力。",
+  "steps": [
+    {"op": "assert_stable", "timeout": 3000, "desc": "先确认画面是静止的"},
+    {"op": "assert_changed", "timeout": 1500, "desc": "此时断言变化，应当失败"}
+  ]
+}

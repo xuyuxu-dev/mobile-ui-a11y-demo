@@ -1,0 +1,9 @@
+{
+  "name": "canvas-ocr",
+  "description": "Canvas page with no accessible text: assert content through OCR.",
+  "steps": [
+    {"op": "launch", "component": "com.demo.canvas/.MainActivity"},
+    {"op": "ocr_contains", "text": "Canvas fixture", "desc": "title"},
+    {"op": "ocr_contains", "text": "tap any letter", "desc": "hint line"}
+  ]
+}

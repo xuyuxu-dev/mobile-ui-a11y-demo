@@ -1,0 +1,12 @@
+{
+  "name": "settings-demo",
+  "description": "在系统设置里走一圈：打开 → 等列表 → 点进声音 → 断言到达 → 返回。只导航，不改任何设置。",
+  "steps": [
+    {"op": "launch", "action": "android.settings.SETTINGS", "settle_text": "声音"},
+    {"op": "assert_text", "text": "声音", "desc": "设置主页已加载"},
+    {"op": "tap_text", "text": "声音", "settle_text": "铃声"},
+    {"op": "assert_text", "text": "铃声", "desc": "已进入声音设置"},
+    {"op": "back"},
+    {"op": "assert_text", "text": "声音", "desc": "已回到设置主页"}
+  ]
+}

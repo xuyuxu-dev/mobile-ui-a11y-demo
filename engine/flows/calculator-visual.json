@@ -1,0 +1,10 @@
+{
+  "name": "calculator-visual",
+  "description": "点击用文字定位，效果用截图哈希验证（不读无障碍树判断结果）。",
+  "steps": [
+    {"op": "home"},
+    {"op": "launch", "package": "com.huawei.calculator", "settle_text": "5"},
+    {"op": "tap_text", "text": "5"},
+    {"op": "assert_changed", "timeout": 4000, "desc": "按下数字后画面应变化"}
+  ]
+}

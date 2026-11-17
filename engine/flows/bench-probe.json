@@ -1,0 +1,8 @@
+{
+  "name": "bench-probe",
+  "description": "基准用流程：只导航 + 断言，不点击。",
+  "steps": [
+    {"op": "assert_text", "text": "声音", "desc": "设置主页可见"},
+    {"op": "assert_text", "text": "显示", "desc": "同一页面第二个锚点"}
+  ]
+}

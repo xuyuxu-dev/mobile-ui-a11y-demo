@@ -1,4 +1,0 @@
-docs: neutral wording in the audit table; refresh the history note
-
-- AUDIT: describe the wording finding without stating the motivation
-- SECURITY: the repository was recreated, so earlier objects are unreachable

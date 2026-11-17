@@ -1,0 +1,37 @@
+name: ci
+
+# 只跑不需要真机的部分：两个包的离线自测 + 样例数据校验。
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  offline:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: lint 离线自测（夹具断言）
+        run: python lint/tests/selftest.py
+
+      - name: 生成样例数据
+        run: |
+          python lint/collectors/adb_collect.py --fixture lint/fixtures/normal.xml --out lint/data/ci.jsonl
+          python lint/collectors/adb_collect.py --fixture lint/fixtures/orphan.xml --out lint/data/ci.jsonl
+
+      - name: schema 校验
+        run: python lint/tests/schema_check.py lint/data/ci.jsonl
+
+      - name: 隐私扫描（确认无界面文本）
+        run: python lint/tests/privacy_scan.py lint/data/ci.jsonl
+
+      - name: 分析器冒烟
+        run: python lint/analyze/analyze.py lint/data/ci.jsonl --outdir lint/data
+
+      - name: engine 离线自测
+        run: python engine/tests/selftest_engine.py

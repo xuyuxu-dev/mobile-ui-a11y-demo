@@ -14,7 +14,11 @@ TOL = 0.15  # 允许 15% 漂移
 
 
 def totals(path):
-    recs = [json.loads(l) for l in open(path, encoding="utf-8") if l.strip()]
+    try:
+        recs = [json.loads(l) for l in open(path, encoding="utf-8-sig") if l.strip()]
+    except ValueError as e:
+        print("数据集不是合法 JSONL：%s（%s）" % (path, e))
+        return None
     m = [r["metrics"] for r in recs]
     g = lambda k: sum(x.get(k, 0) for x in m)
     ld = {}
@@ -39,6 +43,8 @@ def main():
         print("无本地数据集，跳过基线比较")
         return 0
     cur = totals(data)
+    if cur is None:
+        return 2
     base = json.load(open(bpath, encoding="utf-8"))
     bad = 0
     for k, v in base.items():

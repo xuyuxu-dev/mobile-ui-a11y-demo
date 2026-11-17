@@ -65,6 +65,8 @@ def check_target(kind, value, caps, allow_any=False):
 
 
 def validate_flow(flow, caps=None, allow_any=False):
+    if not isinstance(flow.get("steps"), list):
+        raise ValueError("steps 必须是数组")
     """加载期就校验：未知 op 直接失败；目标字段必须匹配安全字符集并通过白名单。"""
     if not isinstance(flow, dict) or not isinstance(flow.get("steps"), list):
         raise ValueError("流程格式错误：需要 {steps: [...]}")
@@ -375,8 +377,15 @@ def main():
                     help="故障注入，可多次：delay=800 / drop=0.2")
     args = ap.parse_args()
 
-    with open(args.flow, "r", encoding="utf-8-sig") as f:
-        flow = json.load(f)
+    try:
+        with open(args.flow, "r", encoding="utf-8-sig") as f:
+            flow = json.load(f)
+    except OSError as e:
+        print("无法读取流程文件：%s（%s）" % (args.flow, e), file=sys.stderr)
+        return 2
+    except ValueError as e:
+        print("流程文件不是合法 JSON：%s（%s）" % (args.flow, e), file=sys.stderr)
+        return 2
 
     caps = load_capabilities()
     try:
@@ -396,6 +405,10 @@ def main():
     if not serial:
         print("没有设备", file=sys.stderr)
         return 2
+    rc, state, _ = ac.sh([adb, "-s", serial, "get-state"])
+    if state.strip() != "device":
+        print("设备不可用：%s（%s）" % (serial, (state or "offline").strip()), file=sys.stderr)
+        return 3
 
     os.makedirs(os.path.dirname(args.trace), exist_ok=True)
     print("flow: %s  设备: %s  模式: %s" % (flow.get("name"), serial,

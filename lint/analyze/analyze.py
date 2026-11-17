@@ -10,6 +10,7 @@ import html as html_mod
 import json
 import time
 import os
+import sys
 from collections import defaultdict
 
 HERE = os.path.dirname(os.path.abspath(__file__))
@@ -30,7 +31,9 @@ def load(paths):
                 except ValueError:
                     skipped += 1   # 坏行不该让整份报告失败
     if skipped:
-        print("警告：跳过 %d 行无法解析的记录" % skipped)
+        print("警告：跳过 %d 行无法解析的记录" % skipped, file=sys.stderr)
+    if not recs:
+        print("没有可用记录：数据集为空或全部损坏（跳过 %d 行）" % skipped, file=sys.stderr)
     # 去重：同 pkg+page 同一秒只留一条（两通道重复采到同一页时不双算）
     seen, out = set(), []
     for r in recs:
@@ -244,6 +247,9 @@ def main(argv=None):
         print("no input")
         return 2
     recs = load(paths)
+    if not recs:
+        # 空数据集意味着采集失败或输入放错；静默产出空报告会让下游门禁误判为通过
+        return 2
     by_pkg = agg_by(recs, lambda r: r["pkg"])
     by_page = agg_by(recs, lambda r: (r["pkg"], r["page"]))
 

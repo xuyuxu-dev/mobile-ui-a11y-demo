@@ -49,6 +49,9 @@ def main(paths):
                     print("FAIL %s:%d %s" % (os.path.basename(p), i, e))
                     bad += 1
     print("校验 %d 条，问题 %d 个" % (n, bad))
+    if n == 0:
+        print("FAIL 没有记录可校验（数据集为空或路径错误）")
+        return 1
     return 1 if bad else 0
 
 

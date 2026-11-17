@@ -36,6 +36,9 @@ def main(paths):
                     print("FAIL %s:%d 含文本类字段 %s" % (p, i, set(rec) & FORBIDDEN))
                     bad += 1
     print("扫描 %d 条记录，问题 %d 个" % (n, bad))
+    if n == 0:
+        print("FAIL 没有记录可扫描（数据集为空或路径错误）")
+        return 1
     return 1 if bad else 0
 
 

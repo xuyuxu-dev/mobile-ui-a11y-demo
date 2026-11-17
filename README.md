@@ -113,7 +113,17 @@ python engine/tests/selftest_engine.py
 
 Windows: `powershell -ExecutionPolicy Bypass -File .\verify.ps1` runs all five checks.
 
-## Design rules
+'## Exit codes
+
+| code | meaning |
+|---|---|
+| 0 | success |
+| 1 | assertion or gate failure |
+| 2 | bad input (missing file, invalid JSON, no device) |
+| 3 | device unavailable |
+| 6 | flow rejected by validation |
+
+## Design rules'
 
 - **read-only by default** — the collector never taps, types or submits
 - **dry-run by default** — the engine taps only with an explicit `--allow-taps`

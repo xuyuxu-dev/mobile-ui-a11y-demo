@@ -210,3 +210,24 @@ python engine/engine.py <恶意flow>      # 应被拒绝（退出码 6）
 | `lint/tests/test_inputs.py` | 空数据集、全坏行、截断行、坏基线、正常数据，共 8 例 |
 
 `verify.ps1` 由 5 道闸门增加到 7 道；CI 同步增加两步。
+### 2026-11-17 第十次增补（设备端回归）
+
+| # | 项 | 处理 |
+|---|---|---|
+| F43 | USB 重新连接后系统弹窗抢占前台，三个视觉 demo 只找到 1 个候选，报"候选不足" | 增加前台检查：组件未在前台时输出当前前台并返回 5 |
+| F44 | 上述失败容易被误判为检测算法退化 | 已在对话与本文档中记录真实原因（系统对话框遮挡） |
+
+回归结果（USB 连接，1080×2340）：
+
+| 项目 | 结果 |
+|---|---|
+| vision_demo | 通过（选中态转移成功） |
+| ocr_tap_demo | 通过 |
+| vision_match_demo | 通过（距离 0px，得分 > 0.90） |
+| canvas-visual 流程 | 通过 |
+| canvas-ocr 流程 | 通过 |
+| settings-demo 流程 | 通过 |
+| bench（6 档） | 与 `docs/BENCH.md` 一致：clean/delay/drop10/drop30 为 100%，drop60 与定向 hide 为 0% |
+| 采集 3 页 + analyze + schema + privacy | 全部通过 |
+
+前台检查验证：把设置置于前台、传入无法启动的组件 → 退出码 5 并打印当前前台。

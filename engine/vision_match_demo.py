@@ -47,6 +47,12 @@ def main():
                    stdout=subprocess.PIPE, stderr=subprocess.PIPE, timeout=30)
     time.sleep(2.0)
 
+    # 系统弹窗（如 USB 连接方式）会抢前台，导致截图全是弹窗
+    focus = kit.current_focus(adb, serial)
+    pkg = args.component.split('/')[0]
+    if focus and not focus.startswith(pkg):
+        print('前台不是 %s（当前 %s），可能有系统弹窗遮挡' % (pkg, focus))
+        return 5
     before = os.path.join(args.outdir, "match-before.png")
     after = os.path.join(args.outdir, "match-after.png")
     tpl = os.path.join(args.outdir, "match-template.png")

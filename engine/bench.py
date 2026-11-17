@@ -22,15 +22,14 @@ sys.path.insert(0, HERE)
 from adbkit import adbkit as ac  # noqa: E402
 import engine as eng  # noqa: E402
 
-PROFILES = [
-    ("clean", {}),
-    ("delay=500ms", {"delay": 500}),
-    ("drop=10%", {"drop": 0.1}),
-    ("drop=30%", {"drop": 0.3}),
-    ("drop=60%", {"drop": 0.6}),
-    ("hide=显示（定向）", {"hide": "显示"}),
-]
-
+PROFILES_PATH = os.path.join(HERE, "bench-profiles.json")
+try:
+    with open(PROFILES_PATH, encoding="utf-8") as f:
+        _profiles = json.load(f)
+    PROFILES = [(name, cfg) for name, cfg in _profiles.items()]
+except (OSError, ValueError):
+    PROFILES = [("clean", {}), ("delay500", {"delay_ms": 500}),
+                ("drop30", {"leaf_drop_pct": 30}), ("drop60", {"leaf_drop_pct": 60})]
 
 def ensure_settings(adb, serial, tries=3):
     """Bring Settings to the foreground and confirm it, retrying through wake transitions."""
@@ -38,10 +37,11 @@ def ensure_settings(adb, serial, tries=3):
         ac.wake(adb, serial)
         ac.adb_shell(adb, serial, "input keyevent 82")      # dismiss the keyguard if present
         ac.adb_shell(adb, serial, "am start -a android.settings.SETTINGS")
-        time.sleep(2)
-        focus = ac.current_focus(adb, serial)
-        if focus.startswith("com.android.settings"):
-            return True
+        # 轮询前台，而不是"等 2 秒再赌一次"
+        for _ in range(20):
+            time.sleep(0.25)
+            if ac.current_focus(adb, serial).startswith("com.android.settings"):
+                return True
     return False
 
 

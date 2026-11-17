@@ -80,3 +80,19 @@ ui-a11y-audit/adbkit/adbkit.py    devices / dump / 密度 / bounds / 截图哈�
 同理，`lint` 的每个指标都有对应的负向夹具（`orphan.xml`：祖先里没有任何文字 → 距离 -1）。
 
 **原则**：每个"检查"都应配一个"必然失败"的用例，否则无法证明其有效。
+## 依赖方向
+
+```
+adbkit  ←  lint  (采集/分析)
+        ←  engine (流程执行)
+        ←  tools  (录制/渲染)
+```
+
+| 规则 | 现状 |
+|---|---|
+| `adbkit` 只依赖标准库 | 是（hashlib/os/re/subprocess/time） |
+| `lint` 与 `engine` 互不 import | 是（跨包实验脚本已移出） |
+| 跨包脚本集中放置 | `tools/experiments/`，README 说明原因 |
+| 数据与规则外置 | `capabilities.json`、`flows/*.json`、`pages.json`、`bench-profiles.json` |
+| 无写死坐标 | 是（按文字或几何定位） |
+| 固定延时仅限录制/实验 | 流程执行用 `POLL_MS` 轮询 |

@@ -15,10 +15,10 @@ import time
 import xml.etree.ElementTree as ET
 
 HERE = os.path.dirname(os.path.abspath(__file__))
-DEMO = os.path.dirname(HERE)
-sys.path.insert(0, HERE)
-sys.path.insert(0, DEMO)
-sys.path.insert(0, os.path.join(DEMO, "lint", "collectors"))
+ROOT = os.path.dirname(os.path.dirname(HERE))
+sys.path.insert(0, ROOT)
+sys.path.insert(0, os.path.join(ROOT, "engine"))
+sys.path.insert(0, os.path.join(ROOT, "lint", "collectors"))
 from adbkit import adbkit as kit  # noqa: E402
 import ocr  # noqa: E402
 

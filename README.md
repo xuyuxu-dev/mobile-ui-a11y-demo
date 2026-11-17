@@ -118,7 +118,7 @@ Windows: `powershell -ExecutionPolicy Bypass -File .\verify.ps1` runs all five c
 - **read-only by default** — the collector never taps, types or submits
 - **dry-run by default** — the engine taps only with an explicit `--allow-taps`
 - **capability allowlist** — `engine/capabilities.json` defines the allowed targets
-- **no fixed sleeps** — waiting is state polling (`settle_text`), never `sleep`
+- **no fixed sleeps in flow execution** — waiting is state polling (`settle_text`); recording scripts use fixed delays only to time screenshots
 '- **data minimization** — metrics carry counts only; screenshots and traces stay in `data/` (gitignored)
 - **pseudonymous devices** — records store a hash of the hardware serial, never the serial itself
 - **redaction by default** — traces mask page-derived text unless `--no-redact` is passed

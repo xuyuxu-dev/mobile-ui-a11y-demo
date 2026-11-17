@@ -150,3 +150,17 @@ python engine/engine.py <恶意flow>      # 应被拒绝（退出码 6）
 | F27 | `bench.py` 在屏幕超时后连续失败（`assert_text` 全部未命中） | 启动前确认 Settings 已在前台（重试 3 次），每次运行前唤醒 |
 
 复跑结果与 `docs/BENCH.md` 一致：clean/delay/drop10/drop30 为 100%，drop60 与定向 hide 为 0%。
+### 2026-11-17 第六次增补（架构纪律审查）
+
+| # | 项 | 处理 |
+|---|---|---|
+| F28 | `engine/` 里两个实验脚本通过 `sys.path` 引用 `lint/collectors`，形成反向依赖 | 移到 `tools/experiments/`，并说明跨包原因 |
+| F29 | README 写"never sleep"，但 bench 与录制脚本存在固定延时 | 表述改为"流程执行不使用固定延时"，录制脚本的延时限定用途 |
+| F30 | bench 的故障档位硬编码在代码里 | 外置为 `engine/bench-profiles.json` |
+
+架构规则现状：
+
+- `adbkit` 只依赖标准库
+- `lint` 与 `engine` 之间没有 import 关系
+- 配置外置：白名单、流程、页面清单、故障档位
+- 流程执行使用轮询；固定延时只出现在录制与实验脚本

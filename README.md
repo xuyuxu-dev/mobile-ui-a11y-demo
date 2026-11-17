@@ -70,7 +70,15 @@ ui-a11y-audit/
 Method notes and the three corrections that changed the conclusion: `lint/docs/FINDINGS.md`,
 `lint/docs/EXPERIMENT_M1_5.md`.
 
-## Usage
+'## Dependencies
+
+```bash
+pip install -r requirements.txt   # numpy + Pillow, only needed by the vision channel and tools/
+```
+
+The collector (`lint/`) and the flow engine (`engine/engine.py`) need Python 3.8+ and `adb` only.
+
+## Usage'
 
 ```bash
 # collect (read-only, page list in collectors/pages.json)

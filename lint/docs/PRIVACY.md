@@ -18,7 +18,7 @@
 
 - `data/` 已在 `.gitignore` 里，不进仓库
 - 数据留在本机 `ui-a11y-audit/lint/data/`，可随时删除
-- 若要发布数据集，必须先跑 `tests/privacy_scan.py`（待实现）：扫描是否含文本字段
+- 若要发布数据集，先运行 `tests/privacy_scan.py`：它检查记录中是否出现文本字段
 
 ## 采样对象
 
@@ -32,7 +32,7 @@
 ## 引擎 trace 与截图（补充）
 
 - `engine` 的每步 trace 默认会记录**流程里的文字**（如 `点击 (x,y) 声音`）；
-  分享前请加 `--redact`，它会把引号内文字、OCR 命中内容、未找到的目标替换为占位符。
+  trace 默认脱敏：引号内文字、OCR 命中内容、未找到的目标会被替换为占位符；`--no-redact` 才保留原文。
 - 截图只写在本机 `engine/data/`、`lint/data/`（已 gitignore），不会提交。
 - 采集会在设备的 `/sdcard/` 留两个界面树文件（`lint_dump.xml`、`adbkit_dump.xml`），可随时删除。
 

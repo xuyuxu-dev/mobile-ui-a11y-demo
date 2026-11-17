@@ -1,4 +1,0 @@
-docs: refresh the findings table and record the public-review round
-
-- FINDINGS: rewrite the closing numbers with the current metric definitions
-- AUDIT: add the post-publication review (stray file removed, repository settings checked)

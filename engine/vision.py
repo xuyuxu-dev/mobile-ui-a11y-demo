@@ -14,13 +14,18 @@ import json
 import os
 import sys
 
-import numpy as np
-from PIL import Image
+try:
+    import numpy as np
+    from PIL import Image
+except ImportError as e:  # pragma: no cover
+    raise SystemExit("vision channel needs numpy and Pillow: pip install -r requirements.txt (%s)" % e)
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 
 
 def load_rgb(path):
+    if not os.path.isfile(path):
+        raise SystemExit("image not found: %s" % path)
     with Image.open(path) as im:
         return np.asarray(im.convert("RGB")).astype(np.int16)
 

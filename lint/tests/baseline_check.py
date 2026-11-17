@@ -50,10 +50,13 @@ def main():
     for k, v in base.items():
         c = cur.get(k, 0)
         dev = abs(c - v) / max(1, v)
-        flag = "OK" if dev <= TOL else "DRIFT"
-        if dev > TOL:
+        # 小计数（如 tiny=5）用百分比会把 ±1 放大成 20%：至少允许 1 个单位的抖动
+        slack = max(1, int(round(v * TOL)))
+        flagged = abs(c - v) > slack
+        if flagged:
             bad += 1
-        print("%-14s baseline=%4d now=%4d dev=%5.1f%% %s" % (k, v, c, dev * 100, flag))
+        print("%-14s baseline=%4d now=%4d dev=%5.1f%% slack=%d %s"
+              % (k, v, c, dev * 100, slack, "DRIFT" if flagged else "OK"))
     print("\n%s" % ("基线一致" if bad == 0 else "漂移 %d 项（检查是否换了设备/改了口径）" % bad))
     return 0 if bad == 0 else 1
 

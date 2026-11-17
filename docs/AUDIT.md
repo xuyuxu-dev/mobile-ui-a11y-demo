@@ -282,3 +282,21 @@ python engine/engine.py <恶意flow>      # 应被拒绝（退出码 6）
 | `verify.ps1` | 9 道闸门全部通过 |
 
 CI 增加 `lint/tests/test_lock.py` 一步。
+### 2026-11-18 第十四次增补（启动确认与状态无关性）
+
+| # | 项 | 处理 |
+|---|---|---|
+| F52 | 唤醒瞬间 `am start` 可能被丢掉，采集/截图拿到上一屏 | `adbkit.launch_component` 轮询前台并在失败时重试一次；三个视觉 demo 改用它 |
+| F53 | `settings-demo` 依赖设置停留在入口页，上次停在子页时会失败 | `launch` 支持 `clear_task`（清空目标任务栈），流程改为强制入口页 |
+| F54 | `validate_flow` 的文档字符串被早先的补丁挤到语句之后 | 恢复为标准位置，并补 `clear_task` 类型校验 |
+
+验证：
+
+| 项目 | 结果 |
+|---|---|
+| 从桌面连续跑 3 个 demo（两轮、顺序互换） | 全部通过 |
+| 设置停在「显示」子页时跑 `settings-demo` | 通过 |
+| `engine/tests/test_cli.py` | 9/9（新增 clear_task 类型用例） |
+| `engine/tests/test_overlay.py` | 8/8（新增 3 个启动用例） |
+| 60 次 dump soak | 60/60，均值 1.67s，p95 2.07s |
+| 锁竞争（真机 3 进程） | `exit=[0,4,4]`，无锁残留 |

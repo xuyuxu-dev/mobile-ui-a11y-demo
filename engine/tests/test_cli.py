@@ -40,6 +40,8 @@ CASES = [
      '{"steps":[{"op":"launch","package":"com.demo.canvas"}]}', 6),
     ("component outside the allowlist",
      '{"steps":[{"op":"launch","component":"com.demo.canvas/.OtherActivity"}]}', 6),
+    ("clear_task must be a boolean",
+     '{"steps":[{"op":"launch","component":"com.demo.canvas/.MainActivity","clear_task":"yes"}]}', 6),
 ]
 
 

@@ -65,8 +65,6 @@ def check_target(kind, value, caps, allow_any=False):
 
 
 def validate_flow(flow, caps=None, allow_any=False):
-    if not isinstance(flow.get("steps"), list):
-        raise ValueError("steps 必须是数组")
     """加载期就校验：未知 op 直接失败；目标字段必须匹配安全字符集并通过白名单。"""
     if not isinstance(flow, dict) or not isinstance(flow.get("steps"), list):
         raise ValueError("流程格式错误：需要 {steps: [...]}")
@@ -74,6 +72,8 @@ def validate_flow(flow, caps=None, allow_any=False):
         op = step.get("op")
         if op not in OPS:
             raise ValueError("第 %d 步：未知操作 %r" % (i, op))
+        if "clear_task" in step and not isinstance(step["clear_task"], bool):
+            raise ValueError("第 %d 步：clear_task 必须是布尔值" % i)
         for k in ("component", "action", "package"):
             v = step.get(k)
             if not v:
@@ -219,10 +219,12 @@ class Runner:
                 continue
             if op == "launch":
                 target = step.get("action") or step.get("component") or step.get("package")
+                # clear_task：清空目标任务栈，确保落在入口页而不是上次停留的子页
+                flags = " -f 0x10008000" if step.get("clear_task") else ""
                 if step.get("action"):
-                    ac.adb_shell(self.adb, self.serial, "am start -a %s" % step["action"])
+                    ac.adb_shell(self.adb, self.serial, "am start -a %s%s" % (step["action"], flags))
                 elif step.get("component"):
-                    ac.adb_shell(self.adb, self.serial, "am start -n %s" % step["component"])
+                    ac.adb_shell(self.adb, self.serial, "am start -n %s%s" % (step["component"], flags))
                 else:
                     ac.adb_shell(self.adb, self.serial, "monkey -p %s -c android.intent.category.LAUNCHER 1" % step["package"])
                 if step.get("settle_text"):

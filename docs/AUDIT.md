@@ -112,3 +112,17 @@ python engine/engine.py <恶意flow>      # 应被拒绝（退出码 6）
 | F15 | CI 动作依赖大版本标签 | 固定到 commit SHA |
 | F16 | 白名单仅包级 | 增加 `page_allowlist`，可限制到具体页面 |
 | F17 | OCR 从 PATH 解析 powershell | 改为绝对路径优先 |
+### 2026-11-17 第三次增补（公开后复审）
+
+| # | 项 | 处理 |
+|---|---|---|
+| F18 | 仓库混入临时文件 `MSG_TMP.txt`（提交信息草稿） | 删除，并在 `.gitignore` 中屏蔽同类临时文件 |
+| F19 | `FINDINGS.md` 最终数字表过期且表格分隔符丢失 | 按当前口径重写（0.0% / 9.5% / 17.1% / 3.8%） |
+
+复审覆盖范围：
+
+- 仓库设置：无 Actions secret、无 webhook、无 deploy key、仅所有者一个 collaborator，
+  Actions 默认令牌权限为 read
+- 媒体：三张 GIF 逐帧 OCR，无状态栏时间戳残留
+- 代码：四个 `except Exception:` 仅用于字体加载回退，属可接受范围
+- 文档：README / ARTICLE / FINDINGS 数字一致（42 个过小目标，17.1%）

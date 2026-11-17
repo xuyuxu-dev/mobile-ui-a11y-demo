@@ -123,6 +123,8 @@ and the overlay policy).
 | 1 | assertion or gate failure |
 | 2 | bad input (missing file, invalid JSON, no device) |
 | 3 | device unavailable |
+| 4 | output file locked by another collector |
+| 5 | nothing collected (no page matched, or every page was skipped) |
 | 6 | flow rejected by validation |
 
 ## Stability

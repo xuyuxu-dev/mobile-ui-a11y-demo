@@ -20,7 +20,8 @@ $steps = @(
     @{ name = "engine/selftest";      args = @("$root\engine\tests\selftest_engine.py") },
     @{ name = "engine/cli-contract";  args = @("$root\engine\tests\test_cli.py") },
     @{ name = "lint/input-contract";  args = @("$root\lint\tests\test_inputs.py") },
-    @{ name = "engine/overlay";       args = @("$root\engine\tests\test_overlay.py") }
+    @{ name = "engine/overlay";       args = @("$root\engine\tests\test_overlay.py") },
+    @{ name = "lint/lock";            args = @("$root\lint\tests\test_lock.py") }
 )
 
 $fail = 0

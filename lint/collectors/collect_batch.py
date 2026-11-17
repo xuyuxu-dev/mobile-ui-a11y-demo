@@ -15,6 +15,7 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 ROOT = os.path.dirname(HERE)
 sys.path.insert(0, HERE)
 import adb_collect as ac  # noqa: E402
+import lockfile as lockmod  # noqa: E402
 
 
 def launch(adb, serial, item, wait):
@@ -28,46 +29,6 @@ def launch(adb, serial, item, wait):
         return False
     time.sleep(wait)
     return True
-
-
-def acquire_lock(path, force=False):
-    """One writer per output file.
-
-    Concurrent appends are not atomic on Windows: two processes can both seek to the
-    current end and one record is silently lost. Refusing the second writer is safer
-    than producing a quietly incomplete dataset.
-    """
-    lock = path + ".lock"
-    if force and os.path.exists(lock):
-        print("警告：--force 接管已有锁 %s（确认没有其他采集进程在跑）" % lock, file=sys.stderr)
-        try:
-            os.remove(lock)
-        except OSError:
-            pass
-    try:
-        fd = os.open(lock, os.O_CREAT | os.O_EXCL | os.O_WRONLY)
-    except FileExistsError:
-        try:
-            holder = open(lock, encoding="utf-8").read().strip()
-        except OSError:
-            holder = "?"
-        print("输出文件正被另一个采集进程使用（pid %s）：%s\n如确认无进程占用，加 --force 或删除 %s"
-              % (holder or "?", path, lock), file=sys.stderr)
-        return None, None
-    except OSError as e:
-        print("无法创建锁文件 %s：%s" % (lock, e), file=sys.stderr)
-        return None, None
-    os.write(fd, str(os.getpid()).encode("utf-8"))
-    os.close(fd)
-    return lock, True
-
-
-def release_lock(lock):
-    if lock:
-        try:
-            os.remove(lock)
-        except OSError:
-            pass
 
 
 def main():
@@ -99,13 +60,20 @@ def main():
 
     density = ac.get_density(adb, serial)
     os.makedirs(os.path.dirname(args.out), exist_ok=True)
-    lock, acquired = acquire_lock(args.out, args.force)
-    if not acquired:
+    got = lockmod.acquire(args.out, args.force)
+    if not got["ok"]:
+        if got["error"]:
+            print("无法创建锁文件 %s：%s" % (got["lock"], got["error"]), file=sys.stderr)
+        else:
+            print("输出文件正被另一个采集进程使用（pid %s）：%s\n如确认无进程占用，加 --force 或删除 %s"
+                  % (got["holder"] or "?", args.out, got["lock"]), file=sys.stderr)
         return 4
+    if got["forced"]:
+        print("警告：--force 接管了已有锁 %s（确认没有其他采集进程在跑）" % got["lock"], file=sys.stderr)
     try:
         return _collect(adb, serial, density, args, pages)
     finally:
-        release_lock(lock)
+        lockmod.release(got["lock"])
 
 
 def _collect(adb, serial, density, args, pages):
@@ -143,6 +111,10 @@ def _collect(adb, serial, density, args, pages):
                  m["unlabeled"], m["undersized"], m.get("tiny", 0)))
         ok += 1
     print("\n完成 %d 页 -> %s" % (ok, args.out))
+    if ok == 0:
+        # 一页都没成功时不能返回 0：下游门禁会把空数据集当成正常输入
+        print("没有任何页面采集成功（检查设备状态与页面清单：%s）" % args.pages, file=sys.stderr)
+        return 5
     return 0
 
 

@@ -70,7 +70,7 @@ ui-a11y-audit/
 Method notes and the three corrections that changed the conclusion: `lint/docs/FINDINGS.md`,
 `lint/docs/EXPERIMENT_M1_5.md`.
 
-'## Dependencies
+## Dependencies
 
 ```bash
 pip install -r requirements.txt   # numpy + Pillow, only needed by the vision channel and tools/
@@ -111,9 +111,11 @@ python lint/tests/selftest.py
 python engine/tests/selftest_engine.py
 ```
 
-Windows: `powershell -ExecutionPolicy Bypass -File .\verify.ps1` runs all five checks.
+Windows: `powershell -ExecutionPolicy Bypass -File .\verify.ps1` runs all eight checks
+(fixture self-tests, schema, privacy, baseline, engine self-test, two CLI/input contracts,
+and the overlay policy).
 
-'## Exit codes
+## Exit codes
 
 | code | meaning |
 |---|---|
@@ -123,13 +125,23 @@ Windows: `powershell -ExecutionPolicy Bypass -File .\verify.ps1` runs all five c
 | 3 | device unavailable |
 | 6 | flow rejected by validation |
 
-## Design rules'
+## Stability
+
+```bash
+python tools/soak.py --serial <SN> --dumps 30        # dump latency and failure rate
+python tools/soak.py --serial <SN> --writers 3 --out data/soak.jsonl   # lock contention
+```
+
+The collector takes a lock file next to its output: concurrent runs would silently drop
+records on Windows, so a second writer exits with code 4. `--force` takes over a stale lock.
+
+## Design rules
 
 - **read-only by default** — the collector never taps, types or submits
 - **dry-run by default** — the engine taps only with an explicit `--allow-taps`
 - **capability allowlist** — `engine/capabilities.json` defines the allowed targets
 - **no fixed sleeps in flow execution** — waiting is state polling (`settle_text`); recording scripts use fixed delays only to time screenshots
-'- **data minimization** — metrics carry counts only; screenshots and traces stay in `data/` (gitignored)
+- **data minimization** — metrics carry counts only; screenshots and traces stay in `data/` (gitignored)
 - **pseudonymous devices** — records store a hash of the hardware serial, never the serial itself
 - **redaction by default** — traces mask page-derived text unless `--no-redact` is passed
 - **local cleanup** — `python tools/clean_local.py` removes screenshots and traces on demand'

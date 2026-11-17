@@ -72,14 +72,12 @@ def main():
     os.makedirs(args.outdir, exist_ok=True)
     # 先把目标页切到前台，否则截到的是当前随便什么界面
     if args.component:
-        subprocess.run([ADB] + (["-s", SERIAL] if SERIAL else []) +
-                       ["shell", "am start -n %s" % args.component],
-                       stdout=subprocess.PIPE, stderr=subprocess.PIPE, timeout=30)
-        time.sleep(2.0)
-        # 系统弹窗（如 USB 连接方式）会抢前台，导致截图全是弹窗
         pkg = args.component.split('/')[0]
-        focus = ac.ensure_foreground(ADB, SERIAL, pkg)
-        if focus and not focus.startswith(pkg):
+        # 启动后确认前台真的切过去了；系统弹窗会抢前台
+        focus = ac.launch_component(ADB, SERIAL, args.component)
+        if not focus.startswith(pkg):
+            focus = ac.ensure_foreground(ADB, SERIAL, pkg)
+        if not focus.startswith(pkg):
             print('前台不是 %s（当前 %s），可能有系统弹窗遮挡' % (pkg, focus))
             return 5
     before = os.path.join(args.outdir, "vision-before.png")

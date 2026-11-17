@@ -66,6 +66,26 @@ def pick_device(adb, serial=None):
     return ds[0] if ds else None
 
 
+def launch_component(adb, serial, component, wait=3.0, tries=2):
+    """Start a component and poll until it owns the foreground.
+
+    The first start after a wake is sometimes dropped; without this check the caller
+    captures the previous screen and reports a confusing detection failure.
+    Returns the foreground component (which may still be the wrong one).
+    """
+    pkg = component.split("/")[0]
+    for _ in range(tries):
+        adb_shell(adb, serial, "am start -n %s" % component, timeout=30)
+        deadline = time.time() + wait
+        while time.time() < deadline:
+            time.sleep(0.25)
+            focus = current_focus(adb, serial)
+            if focus.startswith(pkg):
+                return focus
+        adb_shell(adb, serial, "input keyevent 82", timeout=10)
+    return current_focus(adb, serial)
+
+
 def ensure_foreground(adb, serial, package, back_packages=("com.android.systemui", "android")):
     """Best-effort: dismiss a system overlay (e.g. the USB mode chooser) and re-check.
 

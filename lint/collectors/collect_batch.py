@@ -18,17 +18,39 @@ import adb_collect as ac  # noqa: E402
 import lockfile as lockmod  # noqa: E402
 
 
-def launch(adb, serial, item, wait):
+LAUNCHER_HINT = "launcher"
+
+
+def _start(adb, serial, item):
     if item.get("component"):
-        ac.adb_shell(adb, serial, "am start -n %s" % item["component"])
-    elif item.get("action"):
-        ac.adb_shell(adb, serial, "am start -a %s" % item["action"])
-    elif item.get("package"):
-        ac.adb_shell(adb, serial, "monkey -p %s -c android.intent.category.LAUNCHER 1" % item["package"])
-    else:
+        return ac.adb_shell(adb, serial, "am start -n %s" % item["component"])
+    if item.get("action"):
+        return ac.adb_shell(adb, serial, "am start -a %s" % item["action"])
+    if item.get("package"):
+        return ac.adb_shell(adb, serial, "monkey -p %s -c android.intent.category.LAUNCHER 1" % item["package"])
+    return None
+
+
+def launch(adb, serial, item, wait):
+    """Start the page and confirm the foreground actually left the launcher.
+
+    Right after a wake the first start command is sometimes dropped and the dump
+    captures the home screen instead of the requested page.
+    """
+    if _start(adb, serial, item) is None:
         return False
-    time.sleep(wait)
-    return True
+    deadline = time.time() + wait
+    while time.time() < deadline:
+        time.sleep(0.3)
+        focus = ac.get_focus(adb, serial)
+        if focus and LAUNCHER_HINT not in focus.lower():
+            return True
+    # 重试一次：先解锁，再重新启动
+    ac.adb_shell(adb, serial, "input keyevent 82")
+    _start(adb, serial, item)
+    time.sleep(min(2.0, wait))
+    focus = ac.get_focus(adb, serial)
+    return bool(focus) and LAUNCHER_HINT not in focus.lower()
 
 
 def main():

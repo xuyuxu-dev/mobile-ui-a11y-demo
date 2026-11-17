@@ -44,6 +44,30 @@ def case(name, focuses, package, want_back, want_result):
     return ok
 
 
+def launch_case(name, focuses, component, want_starts, want_shell_calls):
+    """launch_component: poll until the component owns the foreground, retry once."""
+    seq = list(focuses)
+    calls = []
+
+    def current_focus(adb, serial):
+        return seq.pop(0) if seq else ""
+
+    def adb_shell(adb, serial, cmd, timeout=30):
+        calls.append(cmd)
+        return 0, "", ""
+
+    old_cf, old_sh = kit.current_focus, kit.adb_shell
+    kit.current_focus, kit.adb_shell = current_focus, adb_shell
+    try:
+        result = kit.launch_component("adb", "sn", component, wait=0.6, tries=2)
+    finally:
+        kit.current_focus, kit.adb_shell = old_cf, old_sh
+    starts = sum(1 for c in calls if c.startswith("am start"))
+    ok = result.startswith(want_starts) and starts == want_shell_calls
+    print("%-4s %-46s starts=%d focus=%s" % ("ok" if ok else "FAIL", name, starts, result or "<empty>"))
+    return ok
+
+
 def main():
     cases = [
         ("already foreground", ["com.demo.canvas/.MainActivity"], "com.demo.canvas", False, "com.demo.canvas"),
@@ -55,8 +79,21 @@ def main():
         ("empty focus", [""], "com.demo.canvas", False, ""),
     ]
     passed = sum(1 for c in cases if case(*c))
-    print("overlay contract: %d/%d" % (passed, len(cases)))
-    return 0 if passed == len(cases) else 1
+
+    launch_cases = [
+        ("launch: becomes foreground", ["com.demo.canvas/.MainActivity"],
+         "com.demo.canvas/.MainActivity", "com.demo.canvas", 1),
+        ("launch: first start dropped, retry works",
+         ["com.android.settings/.HWSettings"] * 3 + ["com.demo.canvas/.MainActivity"],
+         "com.demo.canvas/.MainActivity", "com.demo.canvas", 2),
+        ("launch: never becomes foreground",
+         ["com.android.settings/.HWSettings"] * 8,
+         "com.demo.canvas/.MainActivity", "com.android.settings", 2),
+    ]
+    passed += sum(1 for c in launch_cases if launch_case(*c))
+    total = len(cases) + len(launch_cases)
+    print("foreground contract: %d/%d" % (passed, total))
+    return 0 if passed == total else 1
 
 
 if __name__ == "__main__":

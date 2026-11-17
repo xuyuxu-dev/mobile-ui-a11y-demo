@@ -138,3 +138,15 @@ python engine/engine.py <恶意flow>      # 应被拒绝（退出码 6）
 | F23 | `PRIVACY.md` 仍写着“privacy_scan 待实现”“分享前请加 --redact” | 改为“已实现”“默认脱敏” |
 
 验证方式：`git clone` 到空目录 → `verify.ps1` → 5/5 通过。
+### 2026-11-17 第五次增补（文档可执行性审查）
+
+方法：干净克隆后，把 README 里的每条命令逐字执行。
+
+| # | 项 | 处理 |
+|---|---|---|
+| F24 | `verify.ps1` 依赖环境变量 `DSH_PYTHON`，普通环境报 0/5 却不说原因 | 新增 `Resolve-Python`：PYTHON → DSH_PYTHON → python3 → python，找不到时给出可读错误 |
+| F25 | `verify.ps1` / `run_all.ps1` 被写成无 BOM 的 UTF-8，Windows PowerShell 按 ANSI 解析中文导致语法错误 | 两个脚本改为带 BOM |
+| F26 | `bench.py` 失败时会把 0% 的无效结果写进 `docs/BENCH.md` | 默认只写 `engine/data/`，`--publish` 才更新文档 |
+| F27 | `bench.py` 在屏幕超时后连续失败（`assert_text` 全部未命中） | 启动前确认 Settings 已在前台（重试 3 次），每次运行前唤醒 |
+
+复跑结果与 `docs/BENCH.md` 一致：clean/delay/drop10/drop30 为 100%，drop60 与定向 hide 为 0%。

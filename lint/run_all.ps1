@@ -1,11 +1,19 @@
-# 一条命令跑完：离线自测 -> 采集 -> 分析 -> 隐私自检
+﻿# 一条命令跑完：离线自测 -> 采集 -> 分析 -> 隐私自检
 # 用法： powershell -ExecutionPolicy Bypass -File .\run_all.ps1 [-Serial SN]
 param([string]$Serial = "")
 
 $ErrorActionPreference = "Stop"
 $root = Split-Path -Parent $MyInvocation.MyCommand.Path
-$py = $env:DSH_PYTHON
-if (-not $py -or -not (Test-Path $py)) { $py = "python" }
+function Resolve-Python {
+    foreach ($c in @($env:PYTHON, $env:DSH_PYTHON, "python3", "python")) {
+        if (-not $c) { continue }
+        $cmd = Get-Command $c -ErrorAction SilentlyContinue
+        if ($cmd) { return $cmd.Source }
+        if (Test-Path $c) { return $c }
+    }
+    throw "找不到 Python 解释器：请把 python 加入 PATH，或设置环境变量 PYTHON 指向解释器"
+}
+$py = Resolve-Python
 $out = Join-Path $root "data\lint.jsonl"
 
 Write-Host "== 1/5 离线自测（无需手机）=="

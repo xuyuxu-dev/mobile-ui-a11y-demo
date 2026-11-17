@@ -1,8 +1,16 @@
-# 两包离线校验（不需要真机）：lint 的 4 道闸门 + engine 的 1 道
+﻿# 两包离线校验（不需要真机）：lint 的 4 道闸门 + engine 的 1 道
 $ErrorActionPreference = "Stop"
 $root = Split-Path -Parent $MyInvocation.MyCommand.Path
-$py = $env:DSH_PYTHON
-if (-not $py -or -not (Test-Path $py)) { $py = "python" }
+function Resolve-Python {
+    foreach ($c in @($env:PYTHON, $env:DSH_PYTHON, "python3", "python")) {
+        if (-not $c) { continue }
+        $cmd = Get-Command $c -ErrorAction SilentlyContinue
+        if ($cmd) { return $cmd.Source }
+        if (Test-Path $c) { return $c }
+    }
+    throw "找不到 Python 解释器：请把 python 加入 PATH，或设置环境变量 PYTHON 指向解释器"
+}
+$py = Resolve-Python
 
 $steps = @(
     @{ name = "lint/selftest";        args = @("$root\lint\tests\selftest.py") },

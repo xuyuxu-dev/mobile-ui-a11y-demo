@@ -32,11 +32,26 @@ PROFILES = [
 ]
 
 
+def ensure_settings(adb, serial, tries=3):
+    """Bring Settings to the foreground and confirm it, retrying through wake transitions."""
+    for _ in range(tries):
+        ac.wake(adb, serial)
+        ac.adb_shell(adb, serial, "input keyevent 82")      # dismiss the keyguard if present
+        ac.adb_shell(adb, serial, "am start -a android.settings.SETTINGS")
+        time.sleep(2)
+        focus = ac.current_focus(adb, serial)
+        if focus.startswith("com.android.settings"):
+            return True
+    return False
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--serial")
     ap.add_argument("--n", type=int, default=5)
     ap.add_argument("--flow", default=os.path.join(HERE, "flows", "bench-probe.json"))
+    ap.add_argument("--publish", action="store_true",
+                    help="写入 docs/BENCH.md（默认只写 engine/data/，避免失败的运行覆盖已发布结果）")
     args = ap.parse_args()
 
     adb = ac.resolve_adb(None)
@@ -54,8 +69,9 @@ def main():
     with open(args.flow, encoding="utf-8-sig") as f:
         flow = json.load(f)
 
-    ac.adb_shell(adb, serial, "am start -a android.settings.SETTINGS")
-    time.sleep(2)
+    if not ensure_settings(adb, serial):
+        print("cannot bring Settings to the foreground (device locked or busy)", file=sys.stderr)
+        return 4
 
     os.makedirs(os.path.join(HERE, "data"), exist_ok=True)
     trace = os.path.join(HERE, "data", "bench-trace.jsonl")
@@ -63,6 +79,7 @@ def main():
     for name, faults in PROFILES:
         ok_n, dumps, eff, t0 = 0, 0, [], time.time()
         for i in range(args.n):
+            ac.wake(adb, serial)       # wake per run: the screen may time out mid-benchmark
             r = eng.Runner(adb, serial, False, trace, faults)
             ok = r.run(flow)
             ok_n += 1 if ok else 0
@@ -82,7 +99,7 @@ def main():
               % (name, ok_n, args.n, row["rate"], row["eff_drop"] * 100,
                  row["avg_dumps"], row["avg_sec"]))
 
-    out_dir = os.path.join(DEMO, "docs")
+    out_dir = os.path.join(DEMO, "docs") if args.publish else os.path.join(HERE, "data")
     os.makedirs(out_dir, exist_ok=True)
     L = ["# 故障注入基准", "",
          "同一流程（等待并断言两个文字）在 5 种故障下各跑 %d 次。" % args.n, "",
@@ -102,7 +119,7 @@ def main():
           "", "复现：`python engine/bench.py --serial <SN> --n 5`", ""]
     with open(os.path.join(out_dir, "BENCH.md"), "w", encoding="utf-8") as f:
         f.write("\n".join(L) + "\n")
-    print("\n写入 docs/BENCH.md")
+    print("\n写入 %s" % os.path.join(out_dir, "BENCH.md"))
     return 0
 
 

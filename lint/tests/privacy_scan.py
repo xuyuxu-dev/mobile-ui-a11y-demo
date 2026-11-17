@@ -24,7 +24,12 @@ def main(paths):
                 if not line:
                     continue
                 n += 1
-                rec = json.loads(line)
+                try:
+                    rec = json.loads(line)
+                except ValueError as e:
+                    print("FAIL %s:%d 无法解析：%s" % (p, i, e))
+                    bad += 1
+                    continue
                 extra = set(rec) - ALLOWED
                 if extra:
                     print("FAIL %s:%d 顶层多余字段 %s" % (p, i, extra))

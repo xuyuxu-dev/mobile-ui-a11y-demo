@@ -45,7 +45,14 @@ def main(paths):
                 if not line:
                     continue
                 n += 1
-                for e in check(json.loads(line)):
+                try:
+                    rec = json.loads(line)
+                except ValueError as e:
+                    # 采集中断可能留下半行：算失败，但不能让整个校验崩掉
+                    print("FAIL %s:%d 无法解析：%s" % (os.path.basename(p), i, e))
+                    bad += 1
+                    continue
+                for e in check(rec):
                     print("FAIL %s:%d %s" % (os.path.basename(p), i, e))
                     bad += 1
     print("校验 %d 条，问题 %d 个" % (n, bad))

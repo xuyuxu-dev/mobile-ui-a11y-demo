@@ -85,6 +85,7 @@ def main():
                                 item.get("label", ""))
         with open(args.out, "a", encoding="utf-8") as f:
             f.write(json.dumps(record, ensure_ascii=False) + "\n")
+            f.flush()          # 中断时最多丢当前页，不留半行
         m = record["metrics"]
         print("%-14s %-52s nodes=%3d int=%2d unl=%2d small=%2d tiny=%2d"
               % (item.get("label"), focus.split("/")[-1][:50], m["nodes"], m["interactive"],

@@ -253,7 +253,11 @@ def main(argv=None):
     by_pkg = agg_by(recs, lambda r: r["pkg"])
     by_page = agg_by(recs, lambda r: (r["pkg"], r["page"]))
 
-    os.makedirs(args.outdir, exist_ok=True)
+    try:
+        os.makedirs(args.outdir, exist_ok=True)
+    except OSError as e:
+        print("无法创建输出目录：%s（%s）" % (args.outdir, e), file=sys.stderr)
+        return 2
     pkg_cols = ["pkg", "pages", "interactive", "unlabeled", "unreadable_pct",
                 "undersized", "undersized_pct", "no_int", "zero_pages"]
     write_csv(os.path.join(args.outdir, "matrix.csv"), pkg_cols, [

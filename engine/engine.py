@@ -137,8 +137,15 @@ class Runner:
         rec = {"ts": int(time.time() * 1000), "step": step_idx, "op": op,
                "ok": ok, "detail": detail}
         self.log.append(rec)
-        with open(self.trace_path, "a", encoding="utf-8") as f:
-            f.write(json.dumps(rec, ensure_ascii=False) + "\n")
+        if not self.trace_path:
+            return
+        try:
+            with open(self.trace_path, "a", encoding="utf-8") as f:
+                f.write(json.dumps(rec, ensure_ascii=False) + "\n")
+        except OSError as e:
+            # 磁盘满/权限变化：放弃后续 trace，但不影响流程本身
+            print("trace 写入失败，后续不再记录：%s" % e, file=sys.stderr)
+            self.trace_path = None
         print("%-2d %-14s %s  %s" % (step_idx, op, "OK  " if ok else "FAIL", detail))
 
     def dump(self):
@@ -410,7 +417,11 @@ def main():
         print("设备不可用：%s（%s）" % (serial, (state or "offline").strip()), file=sys.stderr)
         return 3
 
-    os.makedirs(os.path.dirname(args.trace), exist_ok=True)
+    try:
+        os.makedirs(os.path.dirname(args.trace) or ".", exist_ok=True)
+    except OSError as e:
+        print("无法创建 trace 目录：%s（%s）" % (args.trace, e), file=sys.stderr)
+        return 2
     print("flow: %s  设备: %s  模式: %s" % (flow.get("name"), serial,
           "真点击" if args.allow_taps else "dry-run"))
     faults = {}

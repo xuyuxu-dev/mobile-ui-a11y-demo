@@ -293,6 +293,7 @@ def main(argv=None):
         record["shot"] = shot_rel
     with open(args.out, "a", encoding="utf-8") as f:
         f.write(json.dumps(record, ensure_ascii=False) + "\n")
+        f.flush()
     m = record["metrics"]
     print("[%s] %s / %s  nodes=%d interactive=%d unlabeled=%d undersized=%d tiny=%d invisible=%d zero=%s"
           % (record["source"], record["pkg"], record["page"],

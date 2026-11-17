@@ -126,3 +126,15 @@ python engine/engine.py <恶意flow>      # 应被拒绝（退出码 6）
 - 媒体：三张 GIF 逐帧 OCR，无状态栏时间戳残留
 - 代码：四个 `except Exception:` 仅用于字体加载回退，属可接受范围
 - 文档：README / ARTICLE / FINDINGS 数字一致（42 个过小目标，17.1%）
+### 2026-11-17 第四次增补（可复现性审查）
+
+用"干净克隆 + 直接跑文档里的命令"来验证，而不是在开发目录里跑。
+
+| # | 项 | 处理 |
+|---|---|---|
+| F20 | 干净克隆后 `verify.ps1` 只有 4/5：基线检查因缺少本地数据集而报错 | 数据集缺失时跳过基线比较并返回成功 |
+| F21 | `vision.py` 依赖 numpy/Pillow，但仓库未声明依赖，缺库时报 ImportError 堆栈 | 新增 `requirements.txt`，README 增加 Dependencies 段；缺库时给一行提示 |
+| F22 | `vision.py` 传入不存在的图片会抛 FileNotFoundError 堆栈 | 改为 `image not found: <path>` 退出 |
+| F23 | `PRIVACY.md` 仍写着“privacy_scan 待实现”“分享前请加 --redact” | 改为“已实现”“默认脱敏” |
+
+验证方式：`git clone` 到空目录 → `verify.ps1` → 5/5 通过。

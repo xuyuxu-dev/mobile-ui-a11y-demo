@@ -9,6 +9,9 @@
     "com.demo.canvas",
     "canvas-fixture"
   ],
+  "page_allowlist": {
+    "com.demo.canvas": ["com.demo.canvas/.MainActivity"]
+  },
   "components": [
     "com.demo.canvas/.MainActivity"
   ]

@@ -111,7 +111,10 @@ Windows: `powershell -ExecutionPolicy Bypass -File .\verify.ps1` runs all five c
 - **dry-run by default** — the engine taps only with an explicit `--allow-taps`
 - **capability allowlist** — `engine/capabilities.json` defines the allowed targets
 - **no fixed sleeps** — waiting is state polling (`settle_text`), never `sleep`
-- **data minimization** — metrics carry counts only; screenshots and traces stay in `data/` (gitignored)
+'- **data minimization** — metrics carry counts only; screenshots and traces stay in `data/` (gitignored)
+- **pseudonymous devices** — records store a hash of the hardware serial, never the serial itself
+- **redaction by default** — traces mask page-derived text unless `--no-redact` is passed
+- **local cleanup** — `python tools/clean_local.py` removes screenshots and traces on demand'
 - **input validation** — flow fields are charset-checked, unknown operations are refused
 
 ## Documents
@@ -125,6 +128,12 @@ Windows: `powershell -ExecutionPolicy Bypass -File .\verify.ps1` runs all five c
 | `docs/ARTICLE.md` | technical write-up (Chinese) |
 | `docs/ROADMAP.md` | next steps |
 | `lint/docs/DECISIONS.md` | ADRs, including the end-side channel decision experiment |
+
+## Intended use
+
+This toolkit is meant for auditing interfaces the operator owns or is authorised to test,
+and for building UI tests against apps in development. The flow engine ships with a
+capability allowlist; driving arbitrary third-party apps is out of scope.
 
 ## License
 

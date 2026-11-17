@@ -3,6 +3,7 @@
 """Compose the OCR-channel GIF: screenshot -> OCR boxes -> tap -> verified state."""
 import json
 import os
+import shutil
 import sys
 
 from PIL import Image, ImageDraw, ImageFont
@@ -92,6 +93,10 @@ def main():
     frames[0].save(OUT, save_all=True, append_images=frames[1:],
                    duration=[1300, 1300, 900, 1800], loop=0, optimize=True)
     print("wrote %s (%d KB, %d frames)" % (OUT, os.path.getsize(OUT) // 1024, len(frames)))
+    # CLEANUP: 界面截图只用于合成，默认删除
+    if os.path.isdir(REC):
+        shutil.rmtree(REC, ignore_errors=True)
+        print("removed recorded frames: %s" % REC)
     return 0
 
 

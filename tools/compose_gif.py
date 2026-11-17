@@ -3,6 +3,7 @@
 """Compose the hero GIF: frames + detected boxes + tap indicator + adb command."""
 import json
 import os
+import shutil
 import sys
 
 from PIL import Image, ImageDraw, ImageFont
@@ -95,6 +96,10 @@ def main():
     os.makedirs(os.path.dirname(OUT), exist_ok=True)
     out[0].save(OUT, save_all=True, append_images=out[1:], duration=480, loop=0, optimize=True)
     print("wrote %s (%d KB, %d frames)" % (OUT, os.path.getsize(OUT) // 1024, len(out)))
+    # CLEANUP: 录制帧属于界面截图，合成后默认删除
+    if REC != OUT and os.path.isdir(REC):
+        shutil.rmtree(REC, ignore_errors=True)
+        print("removed recorded frames: %s" % REC)
     return 0
 
 

@@ -36,13 +36,20 @@ def normalize(text):
     return "".join(out).strip()
 
 
+def _powershell():
+    """Absolute path first: avoids resolving an attacker-controlled powershell from PATH."""
+    root = os.environ.get("SystemRoot", r"C:\Windows")
+    exe = os.path.join(root, "System32", "WindowsPowerShell", "v1.0", "powershell.exe")
+    return exe if os.path.isfile(exe) else "powershell"
+
+
 def ocr_image(path, timeout=90):
     """返回 (raw_text, normalized_text)。失败返回 (None, 原因)。"""
     if not os.path.isfile(path):
         return None, "文件不存在: %s" % path
     if not os.path.isfile(PS_SCRIPT):
         return None, "缺少 OCR 脚本: %s" % PS_SCRIPT
-    cmd = ["powershell", "-NoProfile", "-ExecutionPolicy", "Bypass", "-File", PS_SCRIPT, "-Path", path]
+    cmd = [_powershell(), "-NoProfile", "-ExecutionPolicy", "Bypass", "-File", PS_SCRIPT, "-Path", path]
     try:
         p = subprocess.run(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, timeout=timeout)
     except subprocess.TimeoutExpired:
@@ -56,7 +63,7 @@ def ocr_image(path, timeout=90):
 
 def ocr_words(path, timeout=90):
     """返回 (语言, [{text,x,y,w,h}]) —— 带包围盒，可用于"按文字点击"。"""
-    cmd = ["powershell", "-NoProfile", "-ExecutionPolicy", "Bypass", "-File", PS_SCRIPT,
+    cmd = [_powershell(), "-NoProfile", "-ExecutionPolicy", "Bypass", "-File", PS_SCRIPT,
            "-Path", path, "-Json"]
     try:
         p = subprocess.run(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, timeout=timeout)

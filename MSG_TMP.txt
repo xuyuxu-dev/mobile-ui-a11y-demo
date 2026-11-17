@@ -1,9 +1,4 @@
-feat(privacy): pseudonymise device identifiers; harden collection
+docs: neutral wording in the audit table; refresh the history note
 
-- adbkit: device_tag (sha256 prefix), hardware_id (stable across transports),
-  wake and current_focus helpers
-- collectors: store the pseudonym instead of the serial; wake before each page
-  and fall back to mResumedActivity when the window dump is empty
-- schema: describe the device field as a pseudonym
-- docs: refresh measured numbers after re-collection (42 targets, 17.1%)
-- article: replace a conversational phrase with a neutral statement
+- AUDIT: describe the wording finding without stating the motivation
+- SECURITY: the repository was recreated, so earlier objects are unreachable

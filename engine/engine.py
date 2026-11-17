@@ -52,9 +52,16 @@ def check_target(kind, value, caps, allow_any=False):
     elif kind == "package":
         if value not in caps.get("packages", []):
             raise ValueError("包名未授权: %s（见 capabilities.json）" % value)
+        # 按包名启动会落到任意页面，绕过页面级限制；这类包必须显式写 component
+        if (caps.get("page_allowlist") or {}).get(value):
+            raise ValueError("包 %s 需要显式指定 component，不能按包名启动" % value)
     elif kind == "component":
         if value not in caps.get("components", []):
             raise ValueError("组件未授权: %s（见 capabilities.json）" % value)
+        pkg = value.split("/")[0]
+        per_page = (caps.get("page_allowlist") or {}).get(pkg)
+        if per_page and value not in per_page:
+            raise ValueError("该包只允许指定页面: %s（见 capabilities.json）" % pkg)
 
 
 def validate_flow(flow, caps=None, allow_any=False):
@@ -358,8 +365,10 @@ def main():
     ap.add_argument("--adb")
     ap.add_argument("--allow-taps", action="store_true", help="真的点击（默认 dry-run）")
     ap.add_argument("--trace", default=os.path.join(ROOT, "data", "engine-trace.jsonl"))
-    ap.add_argument("--redact", action="store_true",
-                    help="trace 里不记录页面文字（分享日志时建议开启）")
+    ap.add_argument("--redact", dest="redact", action="store_true", default=True,
+                    help="trace 脱敏（默认开启）")
+    ap.add_argument("--no-redact", dest="redact", action="store_false",
+                    help="trace 记录原始文字（仅本地调试）")
     ap.add_argument("--allow-any", action="store_true",
                     help="跳过能力白名单（危险：允许驱动任意应用）")
     ap.add_argument("--fault", action="append", default=[],

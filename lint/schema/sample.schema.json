@@ -7,7 +7,7 @@
   "properties": {
     "schema": { "const": 1 },
     "source": { "enum": ["adb", "apk"] },
-    "device": { "type": "string", "description": "设备型号或序列号，用于区分多机" },
+    "device": { "type": "string", "description": "设备标识：序列号的短哈希（dev-xxxxxxxx），仅用于区分多机" },
     "ts": { "type": "integer", "description": "采样时间 epoch ms" },
     "pkg": { "type": "string" },
     "page": { "type": "string", "description": "窗口/Activity 类名，取不到就填 unknown" },

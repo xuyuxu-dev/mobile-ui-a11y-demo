@@ -206,14 +206,7 @@ def parse_dump(xml_text, density=160.0):
 
 
 def get_focus(adb, serial):
-    """取当前前台组件名（pkg/Activity），作为页面标识。"""
-    rc, out, _ = adb_shell(adb, serial, "dumpsys window windows | grep mCurrentFocus")
-    if rc != 0:
-        rc, out, _ = adb_shell(adb, serial, "dumpsys window | grep mCurrentFocus")
-    m = re.search(r"([A-Za-z0-9_.]+)/([A-Za-z0-9_.$]+)", out or "")
-    if m:
-        return m.group(1) + "/" + m.group(2)
-    return ""
+    return _kit.current_focus(adb, serial)
 
 
 def dump_current(adb, serial, xml_path="/sdcard/lint_dump.xml"):
@@ -270,7 +263,7 @@ def main(argv=None):
         if not xml_text:
             print(why, file=sys.stderr)
             return 3
-        device = serial
+        device = _kit.device_tag(_kit.hardware_id(adb, serial))   # 只存哈希
         focus = get_focus(adb, serial)
 
     shot_rel = ""

@@ -61,6 +61,31 @@ def pick_device(adb, serial=None):
     return ds[0] if ds else None
 
 
+def hardware_id(adb, serial):
+    """Prefer the hardware serial so the tag is stable across USB and Wi-Fi transports."""
+    rc, out, _ = adb_shell(adb, serial, "getprop ro.serialno", timeout=10)
+    if rc == 0:
+        hw = out.strip()
+        if hw and len(hw) >= 6:
+            return hw
+    return serial
+
+
+def device_tag(serial):
+    """Stable pseudonym for a device.
+
+    The raw serial identifies a physical phone, so collected records store this
+    short hash instead: distinct devices stay distinguishable, the serial does not
+    leave the machine.
+    """
+    import hashlib
+    if not serial:
+        return "unknown"
+    if serial == "fixture":
+        return "fixture"
+    return "dev-" + hashlib.sha256(serial.encode("utf-8")).hexdigest()[:8]
+
+
 def get_density(adb, serial):
     rc, out, _ = adb_shell(adb, serial, "wm density")
     if rc == 0:
@@ -71,6 +96,30 @@ def get_density(adb, serial):
         if m:
             return float(m.group(1))
     return 160.0
+
+
+def wake(adb, serial):
+    """Bring the device out of sleep; returns True when the display is on."""
+    for _ in range(3):
+        rc, out, _ = adb_shell(adb, serial, "dumpsys power | grep mWakefulness=", timeout=10)
+        if "Awake" in (out or ""):
+            return True
+        adb_shell(adb, serial, "input keyevent KEYCODE_WAKEUP", timeout=10)
+        time.sleep(0.4)
+    rc, out, _ = adb_shell(adb, serial, "dumpsys power | grep mWakefulness=", timeout=10)
+    return "Awake" in (out or "")
+
+
+def current_focus(adb, serial):
+    """Foreground component, with a fallback for ROMs whose window dump is empty."""
+    for cmd in ("dumpsys window windows | grep mCurrentFocus",
+                "dumpsys window | grep mCurrentFocus",
+                "dumpsys activity activities | grep mResumedActivity"):
+        rc, out, _ = adb_shell(adb, serial, cmd, timeout=15)
+        m = re.search(r"([A-Za-z0-9_.]+)/([A-Za-z0-9_.$]+)", out or "")
+        if m:
+            return m.group(1) + "/" + m.group(2)
+    return ""
 
 
 BOUNDS_RE = re.compile(r"\[(-?\d+),(-?\d+)\]\[(-?\d+),(-?\d+)\]")

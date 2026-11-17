@@ -59,7 +59,7 @@ ui-a11y-audit/
 |---|---|
 | Truly unlabeled (no label within 4 levels) | 0 (0.0%) |
 | Relying on row/ancestor labels (distance ≥1) | 23 (9.5%) |
-| Tap targets 24–48 dp | 44 (18.0%) |
+| Tap targets 24–48 dp | 42 (17.1%) |
 | Pages with zero interactive nodes | 1 (3.8%, canvas-rendered) |
 | Node-count jitter over 8 consecutive dumps | 0% |
 | Single dump latency | 1.86 s |

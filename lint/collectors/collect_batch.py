@@ -64,6 +64,10 @@ def main():
     for item in pages:
         if args.only and item.get("label") != args.only:
             continue
+        # 屏幕休眠会让 dump 返回空树或停在上一页，采集前先唤醒
+        if not ac._kit.wake(adb, serial):
+            print("SKIP %-14s 屏幕无法唤醒" % item.get("label"))
+            continue
         if not launch(adb, serial, item, args.wait):
             continue
         xml_text, why = ac.dump_current(adb, serial)
@@ -76,7 +80,9 @@ def main():
             print("SKIP %-14s %s" % (item.get("label"), e))
             continue
         focus = ac.get_focus(adb, serial) or rec["page"]
-        record = ac.make_record("adb", rec["pkg"], focus, rec["metrics"], serial, item.get("label", ""))
+        record = ac.make_record("adb", rec["pkg"], focus, rec["metrics"],
+                                ac._kit.device_tag(ac._kit.hardware_id(adb, serial)),
+                                item.get("label", ""))
         with open(args.out, "a", encoding="utf-8") as f:
             f.write(json.dumps(record, ensure_ascii=False) + "\n")
         m = record["metrics"]

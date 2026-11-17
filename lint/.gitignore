@@ -1,0 +1,11 @@
+# 采集数据（含设备信息，不进仓库）
+data/
+*.jsonl
+*.csv
+shots/
+# Python
+__pycache__/
+*.pyc
+# 密钥（若将来做端侧通道）
+*.jks
+*.keystore

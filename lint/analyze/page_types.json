@@ -1,0 +1,16 @@
+{
+  "comment": "包名前缀 → 页面类型。外置，避免把设备/ROM 的特征写进代码。",
+  "types": [
+    {"prefix": "com.android.settings", "type": "系统设置"},
+    {"prefix": "com.huawei.systemmanager", "type": "系统管理"},
+    {"prefix": "com.huawei.security", "type": "安全与隐私"},
+    {"prefix": "com.android.deskclock", "type": "系统工具"},
+    {"prefix": "com.android.calendar", "type": "系统工具"},
+    {"prefix": "com.android.soundrecorder", "type": "系统工具"},
+    {"prefix": "com.huawei.calculator", "type": "系统工具"},
+    {"prefix": "com.example.android.notepad", "type": "系统工具"},
+    {"prefix": "com.huawei.hidisk", "type": "系统工具"},
+    {"prefix": "canvas-fixture", "type": "自绘/WebView"}
+  ],
+  "default": "其他"
+}

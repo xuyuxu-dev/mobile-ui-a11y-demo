@@ -1,0 +1,31 @@
+{
+  "comment": "采样清单：只读的页面枚举。action 用 am start -a 启动，package 用 monkey 启动。",
+  "pages": [
+    {"label": "settings-main",   "action": "android.settings.SETTINGS"},
+    {"label": "display",         "action": "android.settings.DISPLAY_SETTINGS"},
+    {"label": "sound",           "action": "android.settings.SOUND_SETTINGS"},
+    {"label": "wifi",            "action": "android.settings.WIFI_SETTINGS"},
+    {"label": "bluetooth",       "action": "android.settings.BLUETOOTH_SETTINGS"},
+    {"label": "apps",            "action": "android.settings.APPLICATION_SETTINGS"},
+    {"label": "battery",         "action": "android.settings.BATTERY_SAVER_SETTINGS"},
+    {"label": "location",        "action": "android.settings.LOCATION_SOURCE_SETTINGS"},
+    {"label": "storage",         "action": "android.settings.INTERNAL_STORAGE_SETTINGS"},
+    {"label": "accessibility",   "action": "android.settings.ACCESSIBILITY_SETTINGS"},
+    {"label": "security",        "action": "android.settings.SECURITY_SETTINGS"},
+    {"label": "notifications",   "action": "android.settings.NOTIFICATION_SETTINGS"},
+    {"label": "date",            "action": "android.settings.DATE_SETTINGS"},
+    {"label": "language",        "action": "android.settings.LOCALE_SETTINGS"},
+    {"label": "input-method",    "action": "android.settings.INPUT_METHOD_SETTINGS"},
+    {"label": "data-usage",      "action": "android.settings.DATA_USAGE_SETTINGS"},
+    {"label": "device-info",     "action": "android.settings.DEVICE_INFO_SETTINGS"},
+    {"label": "privacy",         "action": "android.settings.PRIVACY_SETTINGS"},
+    {"label": "wireless",        "action": "android.settings.WIRELESS_SETTINGS"},
+    {"label": "deskclock",       "package": "com.android.deskclock"},
+    {"label": "calendar",        "package": "com.android.calendar"},
+    {"label": "canvas-demo",     "component": "com.demo.canvas/.MainActivity"},
+    {"label": "file-manager",    "package": "com.huawei.hidisk"},
+    {"label": "recorder",        "package": "com.android.soundrecorder"},
+    {"label": "calculator",      "package": "com.huawei.calculator"},
+    {"label": "notepad",         "package": "com.example.android.notepad"}
+  ]
+}

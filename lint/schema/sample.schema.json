@@ -1,0 +1,35 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "UI accessibility sample",
+  "description": "一次页面采样的统一结构。两通道（PC adb / 端侧 a11y）都产出这个格式，分析层只认它。",
+  "type": "object",
+  "required": ["schema", "source", "ts", "pkg", "page", "metrics"],
+  "properties": {
+    "schema": { "const": 1 },
+    "source": { "enum": ["adb", "apk"] },
+    "device": { "type": "string", "description": "设备型号或序列号，用于区分多机" },
+    "ts": { "type": "integer", "description": "采样时间 epoch ms" },
+    "pkg": { "type": "string" },
+    "page": { "type": "string", "description": "窗口/Activity 类名，取不到就填 unknown" },
+    "metrics": {
+      "type": "object",
+      "required": ["nodes", "interactive", "unlabeled", "undersized", "zero_node_page"],
+      "properties": {
+        "nodes": { "type": "integer", "description": "树里的节点总数" },
+        "interactive": { "type": "integer", "description": "可交互节点数（clickable/long-clickable/checkable/scrollable/EditText）" },
+        "unlabeled": { "type": "integer", "description": "可交互但没有 text 也没有 content-desc 的数量" },
+        "undersized": { "type": "integer", "description": "可交互且宽或高 < 48dp 的数量" },
+        "zero_node_page": { "type": "boolean", "description": "整页节点数 <= 2，典型 Canvas/自绘页面" },
+        "image_only": { "type": "integer", "description": "可交互图片类控件且无描述（屏幕阅读器只能念出类名）" },
+        "invisible": { "type": "integer", "description": "可交互但 bounds 宽或高为 0（隐藏/离屏），不计入 undersized" },
+        "tiny": { "type": "integer", "description": "可交互但宽或高 < 24dp：现场核查多为分隔条/装饰，单独统计" },
+        "unlabeled_classes": { "type": "object", "description": "缺标签控件的短类名 → 数量（只存类名，不含任何文本）" },
+        "unlabeled_strict": { "type": "integer", "description": "标签距离 >2 或缺失的控件数（远标签 + 无标签）" },
+        "label_dist": { "type": "object", "description": "标签距离直方图：0=自身，1..4=祖先层级，-1=4 层内无" },
+        "no_interactive": { "type": "boolean", "description": "整页没有任何可交互节点：疑似自绘/图片化界面（纯展示页也会命中，需截图确认）" }
+      }
+    },
+    "shot": { "type": "string", "description": "截图相对路径，可选" },
+    "note": { "type": "string" }
+  }
+}

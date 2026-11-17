@@ -1,0 +1,9 @@
+<?xml version='1.0' encoding='UTF-8' standalone='yes' ?>
+<hierarchy rotation="0">
+  <node index="0" text="" class="android.widget.FrameLayout" package="com.demo.normal" checkable="false" clickable="false" enabled="true" scrollable="false" bounds="[0,0][1080,2340]">
+    <node index="0" text="设置" class="android.widget.TextView" package="com.demo.normal" clickable="false" bounds="[48,120][240,192]" />
+    <node index="1" text="确定" class="android.widget.Button" package="com.demo.normal" clickable="true" bounds="[600,2000][1000,2150]" />
+    <node index="2" text="" class="android.widget.EditText" package="com.demo.normal" clickable="true" bounds="[48,300][1032,420]" />
+    <node index="3" text="" class="android.widget.ImageButton" package="com.demo.normal" clickable="true" content-desc="返回" bounds="[24,48][144,168]" />
+  </node>
+</hierarchy>

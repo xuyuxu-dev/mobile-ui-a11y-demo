@@ -78,7 +78,7 @@ python lint/tests/selftest.py          # 指标口径
 python lint/tests/privacy_scan.py lint/data/lint.jsonl
 python lint/tests/schema_check.py lint/data/lint.jsonl
 python engine/engine.py <恶意flow>      # 应被拒绝（退出码 6）
-./verify.ps1                           # 5 道闸门
+./verify.ps1                           # 7 道闸门
 ```
 ---
 
@@ -137,7 +137,7 @@ python engine/engine.py <恶意flow>      # 应被拒绝（退出码 6）
 | F22 | `vision.py` 传入不存在的图片会抛 FileNotFoundError 堆栈 | 改为 `image not found: <path>` 退出 |
 | F23 | `PRIVACY.md` 仍写着“privacy_scan 待实现”“分享前请加 --redact” | 改为“已实现”“默认脱敏” |
 
-验证方式：`git clone` 到空目录 → `verify.ps1` → 5/5 通过。
+验证方式：`git clone` 到空目录 → `verify.ps1` → 全部通过。
 ### 2026-11-17 第五次增补（文档可执行性审查）
 
 方法：干净克隆后，把 README 里的每条命令逐字执行。
@@ -195,3 +195,18 @@ python engine/engine.py <恶意flow>      # 应被拒绝（退出码 6）
 - 截断行输入：两个门禁报 `FAIL ... 无法解析` 并返回 1，不再抛堆栈
 
 同一轮把 `analyze` 的只读输出目录与 `engine` 的只读 trace 路径都改为返回 2。
+### 2026-11-17 第九次增补（把失败路径固化为门禁）
+
+| # | 项 | 处理 |
+|---|---|---|
+| F41 | 上述失败路径只靠手工验证，改动后可能回归 | 新增两个契约测试并接入 `verify.ps1` 与 CI |
+| F42 | 无 `adb` 环境调用 `sh()` 抛 `FileNotFoundError` | 改为返回 127 与一行说明；超时返回 124 |
+
+新增测试：
+
+| 文件 | 覆盖 |
+|---|---|
+| `engine/tests/test_cli.py` | 缺文件、坏 JSON、steps 类型、未知操作、注入、越权包名、页面限制，共 8 例 |
+| `lint/tests/test_inputs.py` | 空数据集、全坏行、截断行、坏基线、正常数据，共 8 例 |
+
+`verify.ps1` 由 5 道闸门增加到 7 道；CI 同步增加两步。

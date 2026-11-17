@@ -38,7 +38,12 @@ def resolve_adb(explicit=None):
 
 
 def sh(args, timeout=30):
-    p = subprocess.run(args, stdout=subprocess.PIPE, stderr=subprocess.PIPE, timeout=timeout)
+    try:
+        p = subprocess.run(args, stdout=subprocess.PIPE, stderr=subprocess.PIPE, timeout=timeout)
+    except FileNotFoundError:
+        return 127, "", "adb not found: %s" % args[0]
+    except subprocess.TimeoutExpired:
+        return 124, "", "timeout after %ss: %s" % (timeout, " ".join(args[:3]))
     return p.returncode, p.stdout.decode("utf-8", "replace"), p.stderr.decode("utf-8", "replace")
 
 

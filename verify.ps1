@@ -17,7 +17,9 @@ $steps = @(
     @{ name = "lint/schema";          args = @("$root\lint\tests\schema_check.py", "$root\lint\data\lint.jsonl") },
     @{ name = "lint/privacy";         args = @("$root\lint\tests\privacy_scan.py", "$root\lint\data\lint.jsonl") },
     @{ name = "lint/baseline";        args = @("$root\lint\tests\baseline_check.py", "$root\lint\data\lint.jsonl") },
-    @{ name = "engine/selftest";      args = @("$root\engine\tests\selftest_engine.py") }
+    @{ name = "engine/selftest";      args = @("$root\engine\tests\selftest_engine.py") },
+    @{ name = "engine/cli-contract";  args = @("$root\engine\tests\test_cli.py") },
+    @{ name = "lint/input-contract";  args = @("$root\lint\tests\test_inputs.py") }
 )
 
 $fail = 0

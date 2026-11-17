@@ -15,6 +15,20 @@ python tools/compose_gif.py     # 输出 docs/assets/demo.gif
 
 录制帧写入 `engine/data/rec/`（已 gitignore），GIF 输出到 `docs/assets/`（随仓库发布）。
 
+## 稳定性检查
+
+| 脚本 | 作用 |
+|---|---|
+| `soak.py --dumps N` | 连续 dump N 次，统计均值/p95/失败数，并检查设备上是否残留临时文件 |
+| `soak.py --writers N` | 锁竞争：只允许一个采集进程写同一文件，其余以退出码 4 拒绝 |
+| `soak.py --append-race N` | 观察用：无锁并发追加会对同一文件造成什么 |
+
+```bash
+python tools/soak.py --serial <SN> --dumps 30
+python tools/soak.py --serial <SN> --writers 3 --out data/soak.jsonl
+python tools/soak.py --append-race 4 --out data/race.jsonl
+```
+
 ## 前提
 
 - 设备已连接且屏幕解锁

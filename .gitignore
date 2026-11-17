@@ -12,3 +12,4 @@ _check*.png
 _ocrcheck*.png
 *.bundle
 _warm.png
+*.lock

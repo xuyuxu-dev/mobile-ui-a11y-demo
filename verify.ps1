@@ -19,7 +19,8 @@ $steps = @(
     @{ name = "lint/baseline";        args = @("$root\lint\tests\baseline_check.py", "$root\lint\data\lint.jsonl") },
     @{ name = "engine/selftest";      args = @("$root\engine\tests\selftest_engine.py") },
     @{ name = "engine/cli-contract";  args = @("$root\engine\tests\test_cli.py") },
-    @{ name = "lint/input-contract";  args = @("$root\lint\tests\test_inputs.py") }
+    @{ name = "lint/input-contract";  args = @("$root\lint\tests\test_inputs.py") },
+    @{ name = "engine/overlay";       args = @("$root\engine\tests\test_overlay.py") }
 )
 
 $fail = 0

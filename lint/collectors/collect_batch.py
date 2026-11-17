@@ -30,6 +30,46 @@ def launch(adb, serial, item, wait):
     return True
 
 
+def acquire_lock(path, force=False):
+    """One writer per output file.
+
+    Concurrent appends are not atomic on Windows: two processes can both seek to the
+    current end and one record is silently lost. Refusing the second writer is safer
+    than producing a quietly incomplete dataset.
+    """
+    lock = path + ".lock"
+    if force and os.path.exists(lock):
+        print("警告：--force 接管已有锁 %s（确认没有其他采集进程在跑）" % lock, file=sys.stderr)
+        try:
+            os.remove(lock)
+        except OSError:
+            pass
+    try:
+        fd = os.open(lock, os.O_CREAT | os.O_EXCL | os.O_WRONLY)
+    except FileExistsError:
+        try:
+            holder = open(lock, encoding="utf-8").read().strip()
+        except OSError:
+            holder = "?"
+        print("输出文件正被另一个采集进程使用（pid %s）：%s\n如确认无进程占用，加 --force 或删除 %s"
+              % (holder or "?", path, lock), file=sys.stderr)
+        return None, None
+    except OSError as e:
+        print("无法创建锁文件 %s：%s" % (lock, e), file=sys.stderr)
+        return None, None
+    os.write(fd, str(os.getpid()).encode("utf-8"))
+    os.close(fd)
+    return lock, True
+
+
+def release_lock(lock):
+    if lock:
+        try:
+            os.remove(lock)
+        except OSError:
+            pass
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--serial")
@@ -39,6 +79,7 @@ def main():
     ap.add_argument("--wait", type=float, default=3.0)
     ap.add_argument("--only", help="只跑某个 label")
     ap.add_argument("--fresh", action="store_true", help="先清空输出文件（默认追加）")
+    ap.add_argument("--force", action="store_true", help="无视已存在的锁文件")
     args = ap.parse_args()
 
     adb = ac.resolve_adb(args.adb)
@@ -58,6 +99,16 @@ def main():
 
     density = ac.get_density(adb, serial)
     os.makedirs(os.path.dirname(args.out), exist_ok=True)
+    lock, acquired = acquire_lock(args.out, args.force)
+    if not acquired:
+        return 4
+    try:
+        return _collect(adb, serial, density, args, pages)
+    finally:
+        release_lock(lock)
+
+
+def _collect(adb, serial, density, args, pages):
     if args.fresh and os.path.isfile(args.out):
         os.remove(args.out)
     ok = 0

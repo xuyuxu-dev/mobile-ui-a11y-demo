@@ -66,6 +66,30 @@ def pick_device(adb, serial=None):
     return ds[0] if ds else None
 
 
+def ensure_foreground(adb, serial, package, back_packages=("com.android.systemui", "android")):
+    """Best-effort: dismiss a system overlay (e.g. the USB mode chooser) and re-check.
+
+    Only overlays owned by the listed system packages are dismissed with BACK;
+    a real application that happens to be in front is left untouched so the caller
+    can report it instead of navigating away from it.
+    Returns the foreground component after the attempt (may still be the overlay).
+    """
+    focus = current_focus(adb, serial)
+    if not focus or focus.startswith(package):
+        return focus
+    owner = focus.split("/")[0]
+    if owner not in back_packages:
+        return focus
+    adb_shell(adb, serial, "input keyevent KEYCODE_BACK", timeout=10)
+    # 轮询而不是固定等待：遮罩消失的时间不确定
+    for _ in range(10):
+        time.sleep(0.2)
+        focus = current_focus(adb, serial)
+        if not focus or focus.startswith(package):
+            break
+    return focus
+
+
 def hardware_id(adb, serial):
     """Prefer the hardware serial so the tag is stable across USB and Wi-Fi transports."""
     rc, out, _ = adb_shell(adb, serial, "getprop ro.serialno", timeout=10)

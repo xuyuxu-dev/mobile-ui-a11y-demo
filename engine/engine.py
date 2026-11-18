@@ -89,6 +89,17 @@ def screen_hash(adb, serial):
     return ac.screen_hash(adb, serial)
 
 
+def wait_foreground(adb, serial, package, timeout_ms=None, poll_ms=None):
+    """Poll until the given package owns the foreground."""
+    deadline = time.time() + (timeout_ms or DEFAULT_TIMEOUT) / 1000.0
+    while time.time() < deadline:
+        focus = ac.current_focus(adb, serial)
+        if focus.startswith(package):
+            return True
+        time.sleep((poll_ms or POLL_MS) / 1000.0)
+    return False
+
+
 def bounds_center(bounds):
     x1, y1, x2, y2 = bounds
     return (x1 + x2) // 2, (y1 + y2) // 2
@@ -222,13 +233,26 @@ class Runner:
                 # clear_task：清空目标任务栈，确保落在入口页而不是上次停留的子页
                 flags = " -f 0x10008000" if step.get("clear_task") else ""
                 if step.get("action"):
-                    ac.adb_shell(self.adb, self.serial, "am start -a %s%s" % (step["action"], flags))
+                    start_cmd = "am start -a %s%s" % (step["action"], flags)
                 elif step.get("component"):
-                    ac.adb_shell(self.adb, self.serial, "am start -n %s%s" % (step["component"], flags))
+                    start_cmd = "am start -n %s%s" % (step["component"], flags)
                 else:
-                    ac.adb_shell(self.adb, self.serial, "monkey -p %s -c android.intent.category.LAUNCHER 1" % step["package"])
+                    start_cmd = "monkey -p %s -c android.intent.category.LAUNCHER 1" % step["package"]
+                ac.adb_shell(self.adb, self.serial, start_cmd)
+                if step.get("component"):
+                    pkg = step["component"].split("/")[0]
+                    if not wait_foreground(self.adb, self.serial, pkg):
+                        # 唤醒瞬间的启动可能被丢掉：解锁后重试一次
+                        ac.adb_shell(self.adb, self.serial, "input keyevent 82")
+                        ac.adb_shell(self.adb, self.serial, start_cmd)
+                        wait_foreground(self.adb, self.serial, pkg)
                 if step.get("settle_text"):
                     node, info = self.wait_text(step["settle_text"])
+                    if node is None:
+                        # 唤醒瞬间的启动可能被丢掉：解锁后重试一次
+                        ac.adb_shell(self.adb, self.serial, "input keyevent 82")
+                        ac.adb_shell(self.adb, self.serial, start_cmd)
+                        node, info = self.wait_text(step["settle_text"])
                     if node is None:
                         self.trace(i, op, False, "启动后未等到 %s（%s）" % (step["settle_text"], info))
                         return False

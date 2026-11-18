@@ -199,9 +199,44 @@ def screencap(adb, serial):
     return p.stdout
 
 
+def screencap_raw(adb, serial):
+    """Raw screencap: 12- or 16-byte header (w, h, format[, colorspace]) + RGBA pixels."""
+    args = [adb] + (["-s", serial] if serial else []) + ["exec-out", "screencap"]
+    p = subprocess.run(args, stdout=subprocess.PIPE, stderr=subprocess.PIPE, timeout=60)
+    if p.returncode != 0 or not p.stdout or len(p.stdout) < 16:
+        return None
+    return p.stdout
+
+
+def pixel_body(raw):
+    """Strip the raw screencap header (12 or 16 bytes) and return the pixel bytes."""
+    if not raw or len(raw) < 16:
+        return None
+    w = int.from_bytes(raw[0:4], "little")
+    h = int.from_bytes(raw[4:8], "little")
+    if w <= 0 or h <= 0:
+        return None
+    need = w * h * 4
+    if len(raw) - 16 == need:
+        return raw[16:]
+    if len(raw) - 12 == need:
+        return raw[12:]
+    return None
+
+
 def screen_hash(adb, serial):
-    data = screencap(adb, serial)
-    return hashlib.md5(data).hexdigest() if data else None
+    """Hash the pixels, not the PNG container.
+
+    Two identical frames can produce different PNG bytes (encoder metadata), which made
+    the "did the screen change" assertions flaky. Raw screencap gives a stable payload.
+    """
+    data = screencap_raw(adb, serial)
+    if data:
+        body = pixel_body(data)
+        if body is not None:
+            return hashlib.md5(body).hexdigest()
+    png = screencap(adb, serial)
+    return hashlib.md5(png).hexdigest() if png else None
 
 
 def save_screencap(adb, serial, path):

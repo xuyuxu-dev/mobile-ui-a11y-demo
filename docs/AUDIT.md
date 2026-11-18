@@ -427,3 +427,19 @@ F74 是新测试直接抓到的：`tap_text` 后再 `assert_changed` 必然失�
 
 验证：`engine/tests/test_runner.py` 8/8；`verify.ps1` 现为 12 道闸门，CI 同步增加一步。
 设备端复测待设备恢复（当前 USB 与 Wi-Fi 均不可达）。
+### 2026-11-18 第二十五次增补（导航后的画面稳定）
+
+| # | 项 | 处理 |
+|---|---|---|
+| F75 | `home` / `back` 发出按键后立刻返回，下一步的快照可能拍到过渡中的画面；`[home, launch, assert_changed]` 因此偶发"未变化" | 两个操作结束前轮询到"连续两帧一致"再返回（上限 1.5s） |
+
+验证（真机）：
+
+| 项目 | 结果 |
+|---|---|
+| `canvas-visual` 连跑 8 次 | 8/8 通过（修复前 2/4） |
+| `canvas-ocr` / `settings-demo` | 通过 |
+| 三个视觉 demo | 通过 |
+| bench 6 档 | 与文档一致，耗时未变 |
+| `engine/tests/test_runner.py` | 10/10 |
+| `verify.ps1` | 12/12 |

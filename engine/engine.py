@@ -197,6 +197,23 @@ class Runner:
             self.effective_drop = (before - after) / float(max(1, before))
         return root, ""
 
+    def settle_screen(self, timeout_ms=1500):
+        """Poll until two consecutive frames match, so the next baseline is meaningful.
+
+        `home`/`back` return as soon as the key event is sent; snapshotting the very next
+        frame can catch a half-finished transition and make a later assert_changed compare
+        two identical frames.
+        """
+        deadline = time.time() + timeout_ms / 1000.0
+        prev = screen_hash(self.adb, self.serial)
+        while time.time() < deadline:
+            time.sleep(0.2)
+            cur = screen_hash(self.adb, self.serial)
+            if cur and prev and cur == prev:
+                return True
+            prev = cur
+        return False
+
     def wait_text(self, text, timeout=DEFAULT_TIMEOUT):
         """状态轮询直到文字出现；不 sleep 固定时长。"""
         deadline = time.time() + timeout / 1000.0
@@ -367,9 +384,11 @@ class Runner:
 
             elif op == "back":
                 ac.adb_shell(self.adb, self.serial, "input keyevent 4")
+                self.settle_screen()
                 self.trace(i, op, True, "返回")
             elif op == "home":
                 ac.adb_shell(self.adb, self.serial, "input keyevent 3")
+                self.settle_screen()
                 self.trace(i, op, True, "回到桌面")
             else:
                 self.trace(i, op, False, "未知操作: %r" % op)

@@ -134,6 +134,7 @@ entry point).
 ```bash
 python tools/soak.py --serial <SN> --dumps 30        # dump latency and failure rate
 python tools/soak.py --serial <SN> --writers 3 --out data/soak.jsonl   # lock contention
+python tools/cold_start_check.py --serial <SN>          # sleep the device, then run every flow
 ```
 
 The collector takes a lock file next to its output: concurrent runs would silently drop

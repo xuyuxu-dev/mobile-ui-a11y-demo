@@ -22,7 +22,8 @@ $steps = @(
     @{ name = "lint/input-contract";  args = @("$root\lint\tests\test_inputs.py") },
     @{ name = "uiauto/contract";      args = @("$root\uiauto\tests\test_uiauto.py") },
     @{ name = "lint/lock";            args = @("$root\lint\tests\test_lock.py") },
-    @{ name = "engine/pixel-hash";    args = @("$root\engine\tests\test_screen_hash.py") }
+    @{ name = "engine/pixel-hash";    args = @("$root\engine\tests\test_screen_hash.py") },
+    @{ name = "tools/cli-smoke";      args = @("$root\tools\check_cli.py") }
 )
 
 $fail = 0

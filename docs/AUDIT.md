@@ -366,3 +366,13 @@ lint / engine / tools
 | F62 | `assert_changed` / `assert_stable` 的文档仍写"截图哈希"，未说明按像素 | 改为"像素哈希（原始像素，不受 PNG 编码影响）"，README 增加一条设计规则 |
 
 扫描方法：`^'`、`'\s*$`、`\\n` 三个模式覆盖全部 markdown；按完整路径区分同名 README。
+### 2026-11-18 第十九次增补（CLI 冒烟）
+
+| # | 项 | 处理 |
+|---|---|---|
+| F63 | 导入破坏只在运行时暴露（重构 `uiauto` 时踩过一次） | 新增 `tools/check_cli.py`：扫描带 argparse 的入口，逐个执行 `--help` |
+
+负向验证：向 `engine/ocr_demo.py` 注入不存在的导入 → 冒烟报 12/13、退出码 1；还原后 13/13。
+
+覆盖的入口：engine 主程序与四个 demo、bench、analyze、两个采集器、stability、soak、
+两个实验脚本。`verify.ps1` 现为 11 道闸门，CI 同步增加一步。

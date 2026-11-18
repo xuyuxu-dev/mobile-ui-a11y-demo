@@ -443,3 +443,18 @@ F74 是新测试直接抓到的：`tap_text` 后再 `assert_changed` 必然失�
 | bench 6 档 | 与文档一致，耗时未变 |
 | `engine/tests/test_runner.py` | 10/10 |
 | `verify.ps1` | 12/12 |
+### 2026-11-18 第二十六次增补（休眠设备）
+
+| # | 项 | 处理 |
+|---|---|---|
+| F76 | 流程与视觉 demo 在屏幕休眠时启动，截图全是黑帧，表现为"画面未变化"；采集器与 bench 有唤醒，engine/demo 没有 | `uiauto.launch` 与 `Runner.run` 起始处各唤醒一次 |
+| F77 | `wake()` 只检查 `mWakefulness=Awake`，此时显示屏可能还没亮 | 同时要求 `Display Power: state=ON`，最多重试 5 次 |
+
+验证：
+
+| 项目 | 结果 |
+|---|---|
+| 从休眠启动 `canvas-visual` | 通过（此前必失败） |
+| 从休眠开始连跑 2 轮 × 6 项 | 12/12 通过 |
+| `wake` 从休眠到确认亮屏 | 1.2 秒 |
+| `verify.ps1` | 12/12 |

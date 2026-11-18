@@ -104,15 +104,21 @@ def get_density(adb, serial):
 
 
 def wake(adb, serial):
-    """Bring the device out of sleep; returns True when the display is on."""
-    for _ in range(3):
-        rc, out, _ = adb_shell(adb, serial, "dumpsys power | grep mWakefulness=", timeout=10)
-        if "Awake" in (out or ""):
+    """Bring the device out of sleep; returns True when the display is actually on.
+
+    mWakefulness alone is not enough: the display can still be off for a moment after
+    the wake key, and a screenshot taken then is a black frame.
+    """
+    for _ in range(5):
+        rc, out, _ = adb_shell(adb, serial, "dumpsys power | grep -E 'mWakefulness=|Display Power'", timeout=10)
+        text = out or ""
+        if "Awake" in text and "state=ON" in text:
             return True
         adb_shell(adb, serial, "input keyevent KEYCODE_WAKEUP", timeout=10)
-        time.sleep(0.4)
-    rc, out, _ = adb_shell(adb, serial, "dumpsys power | grep mWakefulness=", timeout=10)
-    return "Awake" in (out or "")
+        time.sleep(0.3)
+    rc, out, _ = adb_shell(adb, serial, "dumpsys power | grep -E 'mWakefulness=|Display Power'", timeout=10)
+    text = out or ""
+    return "Awake" in text and "state=ON" in text
 
 
 def current_focus(adb, serial):

@@ -39,6 +39,8 @@ class FakeDevice:
 
     def adb_shell(self, adb, serial, cmd, timeout=30):
         self.calls.append(cmd)
+        if "dumpsys power" in cmd:
+            return 0, "mWakefulness=Awake\nDisplay Power: state=ON", ""
         if cmd.startswith("input tap"):
             self.state = "tapped"
         elif cmd.startswith("am start") or cmd.startswith("monkey"):

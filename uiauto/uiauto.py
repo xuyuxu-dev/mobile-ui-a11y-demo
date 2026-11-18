@@ -64,6 +64,7 @@ def launch(adb, serial, component=None, action=None, package=None, clear_task=Fa
     cmd = start_command(component, action, package, clear_task)
     if cmd is None:
         return ""
+    kit.wake(adb, serial)   # 屏幕睡着时启动会落在后台，截图全是黑帧
     package = expect_package or (component.split("/")[0] if component else None)
     timeout_ms = int(wait * 1000)
     for _ in range(tries):

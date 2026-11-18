@@ -231,6 +231,7 @@ class Runner:
         return None, last or "超时"
 
     def run(self, flow):
+        ac.wake(self.adb, self.serial)   # 屏幕睡着时所有截图都是黑帧
         for i, step in enumerate(flow["steps"], 1):
             op = step.get("op")
             if op in ACTION_OPS:

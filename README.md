@@ -15,13 +15,14 @@ Real-device recording of the visual loop: locate four buttons → tap → re-det
 
 ```
 ui-a11y-audit/
-├── adbkit/   shared primitives: device discovery, UI-tree dump, density, screenshot hash
+├── adbkit/   adb primitives only: device discovery, dump, density, screenshot hashing
+├── uiauto/   UI policy: launch confirmation, foreground wait, overlay dismissal
 ├── lint/     audit package: UI tree → metrics → reports (read-only, never taps)
 ├── engine/   flow engine: JSON flows → adb (dry-run by default) + fault injection + OCR/vision
 └── fixtures  two demo apps: interactive Canvas app, read-only accessibility counter
 ```
 
-`lint` and `engine` depend only on `adbkit`; neither imports the other, so the packages split cleanly.
+Dependency direction is one-way: `adbkit` ← `uiauto` ← {`lint`, `engine`}. Neither `lint` nor `engine` imports the other, and `adbkit` holds no UI policy, so the packages split cleanly.
 
 ## Glossary
 

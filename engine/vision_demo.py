@@ -57,6 +57,7 @@ def main():
 
     sys.path.insert(0, os.path.dirname(HERE))
     from adbkit import adbkit as ac
+    import uiauto  # noqa: E402
     ADB = ac.resolve_adb(args.adb)
     SERIAL = args.serial
     if not SERIAL:
@@ -74,9 +75,9 @@ def main():
     if args.component:
         pkg = args.component.split('/')[0]
         # 启动后确认前台真的切过去了；系统弹窗会抢前台
-        focus = ac.launch_component(ADB, SERIAL, args.component)
+        focus = uiauto.launch_component(ADB, SERIAL, args.component)
         if not focus.startswith(pkg):
-            focus = ac.ensure_foreground(ADB, SERIAL, pkg)
+            focus = uiauto.ensure_foreground(ADB, SERIAL, pkg)
         if not focus.startswith(pkg):
             print('前台不是 %s（当前 %s），可能有系统弹窗遮挡' % (pkg, focus))
             return 5

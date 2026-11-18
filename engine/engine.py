@@ -22,6 +22,7 @@ ROOT = os.path.dirname(HERE)
 sys.path.insert(0, ROOT)
 sys.path.insert(0, os.path.join(os.path.dirname(ROOT), ""))
 from adbkit import adbkit as ac  # noqa: E402
+import uiauto  # noqa: E402
 import ocr as ocr_mod  # noqa: E402
 
 POLL_MS = 400
@@ -87,17 +88,6 @@ def validate_flow(flow, caps=None, allow_any=False):
 def screen_hash(adb, serial):
     """截图哈希走公共包 adbkit，保持两个包同一实现。"""
     return ac.screen_hash(adb, serial)
-
-
-def wait_foreground(adb, serial, package, timeout_ms=None, poll_ms=None):
-    """Poll until the given package owns the foreground."""
-    deadline = time.time() + (timeout_ms or DEFAULT_TIMEOUT) / 1000.0
-    while time.time() < deadline:
-        focus = ac.current_focus(adb, serial)
-        if focus.startswith(package):
-            return True
-        time.sleep((poll_ms or POLL_MS) / 1000.0)
-    return False
 
 
 def bounds_center(bounds):
@@ -230,28 +220,18 @@ class Runner:
                 continue
             if op == "launch":
                 target = step.get("action") or step.get("component") or step.get("package")
-                # clear_task：清空目标任务栈，确保落在入口页而不是上次停留的子页
-                flags = " -f 0x10008000" if step.get("clear_task") else ""
-                if step.get("action"):
-                    start_cmd = "am start -a %s%s" % (step["action"], flags)
-                elif step.get("component"):
-                    start_cmd = "am start -n %s%s" % (step["component"], flags)
-                else:
-                    start_cmd = "monkey -p %s -c android.intent.category.LAUNCHER 1" % step["package"]
-                ac.adb_shell(self.adb, self.serial, start_cmd)
-                if step.get("component"):
-                    pkg = step["component"].split("/")[0]
-                    if not wait_foreground(self.adb, self.serial, pkg):
-                        # 唤醒瞬间的启动可能被丢掉：解锁后重试一次
-                        ac.adb_shell(self.adb, self.serial, "input keyevent 82")
-                        ac.adb_shell(self.adb, self.serial, start_cmd)
-                        wait_foreground(self.adb, self.serial, pkg)
+                # clear_task 由 uiauto 统一处理（清空任务栈，落回入口页）
+                uiauto.launch(self.adb, self.serial,
+                              component=step.get("component"), action=step.get("action"),
+                              package=step.get("package"), clear_task=bool(step.get("clear_task")))
                 if step.get("settle_text"):
                     node, info = self.wait_text(step["settle_text"])
                     if node is None:
                         # 唤醒瞬间的启动可能被丢掉：解锁后重试一次
                         ac.adb_shell(self.adb, self.serial, "input keyevent 82")
-                        ac.adb_shell(self.adb, self.serial, start_cmd)
+                        uiauto.launch(self.adb, self.serial,
+                                      component=step.get("component"), action=step.get("action"),
+                                      package=step.get("package"), clear_task=bool(step.get("clear_task")))
                         node, info = self.wait_text(step["settle_text"])
                     if node is None:
                         self.trace(i, op, False, "启动后未等到 %s（%s）" % (step["settle_text"], info))

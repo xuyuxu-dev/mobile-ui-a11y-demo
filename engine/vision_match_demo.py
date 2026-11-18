@@ -24,6 +24,7 @@ import vision  # noqa: E402
 import re  # noqa: E402
 SAFE_COMPONENT = re.compile(r"^[A-Za-z0-9_.]+/[A-Za-z0-9_.$]+$")  # 防止把任意字符串拼进 adb shell
 from adbkit import adbkit as kit  # noqa: E402
+import uiauto  # noqa: E402
 
 
 def main():
@@ -45,9 +46,9 @@ def main():
 
     pkg = args.component.split('/')[0]
     # 启动后确认前台真的切过去了；系统弹窗会抢前台
-    focus = kit.launch_component(adb, serial, args.component)
+    focus = uiauto.launch_component(adb, serial, args.component)
     if not focus.startswith(pkg):
-        focus = kit.ensure_foreground(adb, serial, pkg)
+        focus = uiauto.ensure_foreground(adb, serial, pkg)
     if not focus.startswith(pkg):
         print('前台不是 %s（当前 %s），可能有系统弹窗遮挡' % (pkg, focus))
         return 5

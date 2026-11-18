@@ -83,14 +83,18 @@ ui-a11y-audit/adbkit/adbkit.py    devices / dump / 密度 / bounds / 截图哈�
 ## 依赖方向
 
 ```
-adbkit  ←  lint  (采集/分析)
-        ←  engine (流程执行)
-        ←  tools  (录制/渲染)
+adbkit  (adb 原语：shell / dump / 截图 / 哈希)
+   ↑
+uiauto  (UI 策略：启动确认、前台等待、遮罩处理)
+   ↑
+lint (采集/分析)   engine (流程执行)   tools (录制/渲染)
 ```
 
 | 规则 | 现状 |
 |---|---|
-| `adbkit` 只依赖标准库 | 是（hashlib/os/re/subprocess/time） |
+| `adbkit` 只依赖标准库，且不含 UI 策略 | 是（启动/前台逻辑在 `uiauto`） |
+| `uiauto` 只依赖 `adbkit` | 是 |
+| 启动/前台逻辑只有一份实现 | 是（`uiauto.launch` / `ensure_foreground`） |
 | `lint` 与 `engine` 互不 import | 是（跨包实验脚本已移出） |
 | 跨包脚本集中放置 | `tools/experiments/`，README 说明原因 |
 | 数据与规则外置 | `capabilities.json`、`flows/*.json`、`pages.json`、`bench-profiles.json` |

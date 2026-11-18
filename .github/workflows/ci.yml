@@ -39,3 +39,18 @@ jobs:
 
       - name: engine 离线自测
         run: python engine/tests/selftest_engine.py
+
+      - name: CLI 契约（非法输入必须按退出码失败）
+        run: python engine/tests/test_cli.py
+
+      - name: 输入契约（空/损坏数据集必须失败）
+        run: python lint/tests/test_inputs.py
+
+      - name: 前台契约（系统弹窗可退，真实应用不退，启动会重试）
+        run: python uiauto/tests/test_uiauto.py
+
+      - name: 采集锁契约（同一输出文件只允许一个写者）
+        run: python lint/tests/test_lock.py
+
+      - name: 截图哈希契约（按像素而非 PNG 字节）
+        run: python engine/tests/test_screen_hash.py

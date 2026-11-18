@@ -20,6 +20,7 @@ DEMO = os.path.dirname(HERE)
 sys.path.insert(0, DEMO)
 sys.path.insert(0, HERE)
 from adbkit import adbkit as ac  # noqa: E402
+import uiauto  # noqa: E402
 import engine as eng  # noqa: E402
 
 PROFILES_PATH = os.path.join(HERE, "bench-profiles.json")
@@ -31,18 +32,11 @@ except (OSError, ValueError):
     PROFILES = [("clean", {}), ("delay500", {"delay_ms": 500}),
                 ("drop30", {"leaf_drop_pct": 30}), ("drop60", {"leaf_drop_pct": 60})]
 
-def ensure_settings(adb, serial, tries=3):
-    """Bring Settings to the foreground and confirm it, retrying through wake transitions."""
-    for _ in range(tries):
-        ac.wake(adb, serial)
-        ac.adb_shell(adb, serial, "input keyevent 82")      # dismiss the keyguard if present
-        ac.adb_shell(adb, serial, "am start -a android.settings.SETTINGS")
-        # 轮询前台，而不是"等 2 秒再赌一次"
-        for _ in range(20):
-            time.sleep(0.25)
-            if ac.current_focus(adb, serial).startswith("com.android.settings"):
-                return True
-    return False
+def ensure_settings(adb, serial):
+    """Bring Settings to the foreground (uiauto handles the retry and the focus poll)."""
+    uiauto.launch_action(adb, serial, "android.settings.SETTINGS",
+                         expect_package="com.android.settings")
+    return uiauto.wait_foreground(adb, serial, "com.android.settings", timeout_ms=3000)
 
 
 def main():

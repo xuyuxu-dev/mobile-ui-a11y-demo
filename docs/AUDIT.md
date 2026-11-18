@@ -330,3 +330,31 @@ CI 增加 `lint/tests/test_lock.py` 一步。
 
 验证：同一画面连续两次哈希一致；完整序列连续 4 轮 × 6 项全部通过（此前每轮偶发 1 项失败）。
 `verify.ps1` 现为 10 道闸门。
+### 2026-11-18 第十七次增补（层次与重复实现）
+
+自查发现两处架构违规：
+
+| # | 项 | 处理 |
+|---|---|---|
+| F59 | `adbkit` 里混入 UI 策略（`launch_component`、`ensure_foreground`） | 抽到新层 `uiauto/`；`adbkit` 只保留 adb 原语 |
+| F60 | 启动/前台逻辑有 4 份实现（adbkit、engine、collect_batch、bench） | 统一为 `uiauto.launch` / `launch_action` / `wait_foreground`，四处改为调用 |
+
+依赖方向（当前）：
+
+```
+adbkit  (adb 原语)
+   ↑
+uiauto  (UI 策略)
+   ↑
+lint / engine / tools
+```
+
+验证：
+
+| 项目 | 结果 |
+|---|---|
+| `uiauto/tests/test_uiauto.py` | 10/10（遮罩 5 例 + 启动 5 例） |
+| `verify.ps1` | 10/10 |
+| 设备端 6 项回归 | 6/6 |
+| 采集单页（经 uiauto） | 通过 |
+| bench 6 档 | 与文档一致 |

@@ -38,9 +38,19 @@ def entry_points():
 
 def main():
     paths = entry_points()
+    try:
+        import PIL  # noqa: F401
+        have_pil = True
+    except ImportError:
+        have_pil = False
     failed = []
     for path in paths:
         rel = os.path.relpath(path, ROOT)
+        if not have_pil:
+            text = open(path, encoding="utf-8").read()
+            if "from PIL" in text:
+                print("skip %-44s (Pillow missing)" % rel)
+                continue
         try:
             p = subprocess.run([sys.executable, path, "--help"], cwd=ROOT,
                                stdout=subprocess.PIPE, stderr=subprocess.PIPE, timeout=60)

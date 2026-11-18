@@ -20,7 +20,6 @@ import time
 HERE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, HERE)
 sys.path.insert(0, os.path.dirname(HERE))
-import vision  # noqa: E402
 import re  # noqa: E402
 SAFE_COMPONENT = re.compile(r"^[A-Za-z0-9_.]+/[A-Za-z0-9_.$]+$")  # 防止把任意字符串拼进 adb shell
 from adbkit import adbkit as kit  # noqa: E402
@@ -33,6 +32,7 @@ def main():
     ap.add_argument("--component", default="com.demo.canvas/.MainActivity")
     ap.add_argument("--outdir", default=os.path.join(HERE, "data"))
     args = ap.parse_args()
+    import vision  # 惰性导入：--help 不需要 numpy/Pillow
     if not SAFE_COMPONENT.match(args.component or ""):
         print("component 非法: %r" % args.component)
         return 6

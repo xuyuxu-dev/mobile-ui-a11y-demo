@@ -20,6 +20,9 @@ jobs:
         with:
           python-version: "3.11"
 
+      - name: 安装依赖（视觉通道与媒体工具需要 numpy/Pillow）
+        run: pip install -r requirements.txt
+
       - name: lint 离线自测（夹具断言）
         run: python lint/tests/selftest.py
 

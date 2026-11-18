@@ -376,3 +376,14 @@ lint / engine / tools
 
 覆盖的入口：engine 主程序与四个 demo、bench、analyze、两个采集器、stability、soak、
 两个实验脚本。`verify.ps1` 现为 11 道闸门，CI 同步增加一步。
+### 2026-11-18 第二十次增补（可选依赖与 CI）
+
+| # | 项 | 处理 |
+|---|---|---|
+| F64 | CLI 冒烟在 CI 上失败：三个视觉 demo 在模块层 `import vision`，缺 numpy/Pillow 时连 `--help` 都退出 1 | 改为在 `main()` 内惰性导入；`--help` 不再需要可选依赖 |
+| F65 | `tools/check_cli.py` 自身在 scan 里递归调用自己，导致超时 | 扫描时排除自身 |
+| F66 | 未安装 Pillow 的环境跑冒烟会误报 | 缺 Pillow 时跳过依赖它的入口并标注 skip |
+
+验证：屏蔽 numpy/PIL 后三个 demo 的 `--help` 全部退出 0；真正运行仍给出
+"vision channel needs numpy and Pillow" 的明确提示。
+CI 增加 `pip install -r requirements.txt`。

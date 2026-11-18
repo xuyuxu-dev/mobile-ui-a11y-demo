@@ -387,3 +387,11 @@ lint / engine / tools
 验证：屏蔽 numpy/PIL 后三个 demo 的 `--help` 全部退出 0；真正运行仍给出
 "vision channel needs numpy and Pillow" 的明确提示。
 CI 增加 `pip install -r requirements.txt`。
+### 2026-11-18 第二十一次增补（长跑）
+
+| # | 项 | 处理 |
+|---|---|---|
+| F67 | 缺少单次连续长跑的数据（此前最长 60 次） | 连续 120 次 dump：全部成功，均值 1.84s，p95 2.16s，最大 2.60s，设备无残留临时文件 |
+
+备注：后台启动（`Start-Process` + 重定向）的那次运行在 12 分钟内只消耗 1 秒 CPU，判定为
+宿主重定向/并发 adb 调用的环境问题，非代码缺陷；前台重跑正常。长跑结论以本次前台数据为准。

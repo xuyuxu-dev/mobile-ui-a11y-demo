@@ -40,14 +40,15 @@ def main():
 
     results = []
 
-    # 1. acquire / release / re-acquire
+    # 1. acquire creates the lock, release removes it, a second acquire works
     a = lockfile.acquire(out)
-    ok1 = a["ok"] and os.path.isfile(out + ".lock")
+    created = a["ok"] and os.path.isfile(a["lock"])
     lockfile.release(a["lock"])
+    removed = not os.path.exists(a["lock"])
     b = lockfile.acquire(out)
-    ok2 = b["ok"] and not os.path.isfile(out + ".lock") is False
+    reacquired = b["ok"] and os.path.isfile(b["lock"])
     lockfile.release(b["lock"])
-    results.append(("acquire and release", ok1 and ok2))
+    results.append(("acquire / release / re-acquire", created and removed and reacquired))
 
     # 2. second acquire is refused and reports the holder pid
     held = lockfile.acquire(out)
@@ -74,8 +75,9 @@ def main():
     results.append(("concurrent: one winner", ok5))
 
     # 5. after everyone exits the lock is gone and can be taken again
+    gone = not os.path.exists(out + ".lock")
     again = lockfile.acquire(out)
-    ok6 = again["ok"]
+    ok6 = gone and again["ok"]
     lockfile.release(again["lock"])
     results.append(("lock released after runs", ok6))
 

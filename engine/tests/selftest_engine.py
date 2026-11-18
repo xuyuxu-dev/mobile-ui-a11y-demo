@@ -28,6 +28,23 @@ def main():
             bad += 1
         else:
             print("ok   find_text(%r) -> %s" % (text, "找到" if got else "未找到"))
+    # 纯函数：bounds 中心点（点击坐标的唯一来源）
+    for bounds, want in [((0, 0, 100, 200), (50, 100)), ((10, 20, 11, 22), (10, 21))]:
+        got = eng.bounds_center(bounds)
+        if got != want:
+            print("FAIL bounds_center(%r) want=%s got=%s" % (bounds, want, got))
+            bad += 1
+        else:
+            print("ok   bounds_center(%r) -> %s" % (bounds, got))
+
+    # 找到的文字必须带回包围盒（点击依赖它）
+    node, b = eng.find_text(root, "确定")
+    if node is None or not (isinstance(b, tuple) and len(b) == 4 and b[2] > b[0] and b[3] > b[1]):
+        print("FAIL find_text(确定) 需要返回有效包围盒，got=%r" % (b,))
+        bad += 1
+    else:
+        print("ok   find_text(确定) bounds=%r" % (b,))
+
     flow_path = os.path.join(ROOT, "flows", "settings-demo.json")
     with open(flow_path, encoding="utf-8-sig") as f:
         flow = json.load(f)

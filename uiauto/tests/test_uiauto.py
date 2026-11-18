@@ -43,9 +43,10 @@ def case_overlay(name, focuses, package, want_back, want_prefix):
         result = ui.ensure_foreground("adb", "sn", package)
     finally:
         restore()
-    back = any("KEYCODE_BACK" in c for c in calls)
-    ok = back == want_back and result.startswith(want_prefix)
-    print("%-4s %-46s back=%-5s focus=%s" % ("ok" if ok else "FAIL", name, back, result or "<empty>"))
+    backs = sum(1 for c in calls if "KEYCODE_BACK" in c)
+    expected_backs = 1 if want_back else 0
+    ok = backs == expected_backs and result.startswith(want_prefix)
+    print("%-4s %-46s backs=%d focus=%s" % ("ok" if ok else "FAIL", name, backs, result or "<empty>"))
     return ok
 
 
@@ -58,6 +59,8 @@ def case_launch(name, focuses, want_prefix, want_starts, **kw):
         restore()
     starts = sum(1 for c in calls if c.startswith("am start"))
     ok = result.startswith(want_prefix) and starts == want_starts
+    if kw.get("clear_task"):
+        ok = ok and any("0x10008000" in c for c in calls)
     print("%-4s %-46s starts=%d focus=%s" % ("ok" if ok else "FAIL", name, starts, result or "<empty>"))
     return ok
 

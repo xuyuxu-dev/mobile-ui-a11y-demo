@@ -395,3 +395,12 @@ CI 增加 `pip install -r requirements.txt`。
 
 备注：后台启动（`Start-Process` + 重定向）的那次运行在 12 分钟内只消耗 1 秒 CPU，判定为
 宿主重定向/并发 adb 调用的环境问题，非代码缺陷；前台重跑正常。长跑结论以本次前台数据为准。
+### 2026-11-18 第二十二次增补（测试断言质量）
+
+| # | 项 | 处理 |
+|---|---|---|
+| F68 | `test_lock.py` 用 `not X is False` 表达"锁存在"，可读性差且未验证"释放后锁消失" | 改为显式的创建/删除/再获取三段断言 |
+| F69 | `test_uiauto.py` 的 clear_task 用例只检查启动次数，**即使 flag 没加上也会通过**；BACK 只做 `any()` 不做计数 | 断言命令里含 `0x10008000`；BACK 次数必须精确为 1 或 0 |
+| F70 | `selftest_engine.py` 缺少纯函数覆盖（点击坐标计算、包围盒返回） | 增加 `bounds_center` 两例与 `find_text` 包围盒校验 |
+
+负向验证：临时移除 `clear_task` 的 flag → 该用例 FAIL（9/10），还原后 10/10。

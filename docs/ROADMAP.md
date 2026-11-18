@@ -10,7 +10,8 @@
 - [x] 视觉通道（截图哈希 assert_changed / assert_stable）
 - [x] CI（离线夹具）+ verify.ps1 一键校验
 - [x] 抽出公共包 `adbkit`（lint / engine 互不依赖对方目录）
-- [x] OCR 召回率实测（71.9%，114 条 / 7 页）\n- [x] 视觉定位原型（`engine/vision.py`：Canvas 页找到 4 个圆钮并判断选中态）
+- [x] OCR 召回率实测（71.9%，114 条 / 7 页）
+- [x] 视觉定位原型（`engine/vision.py`：Canvas 页找到 4 个圆钮并判断选中态）
 
 ## 下一步（按价值排序）
 

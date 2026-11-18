@@ -79,7 +79,7 @@ pip install -r requirements.txt   # numpy + Pillow, only needed by the vision ch
 
 The collector (`lint/`) and the flow engine (`engine/engine.py`) need Python 3.8+ and `adb` only.
 
-## Usage'
+## Usage
 
 ```bash
 # collect (read-only, page list in collectors/pages.json)
@@ -147,8 +147,9 @@ records on Windows, so a second writer exits with code 4. `--force` takes over a
 - **data minimization** — metrics carry counts only; screenshots and traces stay in `data/` (gitignored)
 - **pseudonymous devices** — records store a hash of the hardware serial, never the serial itself
 - **redaction by default** — traces mask page-derived text unless `--no-redact` is passed
-- **local cleanup** — `python tools/clean_local.py` removes screenshots and traces on demand'
+- **local cleanup** — `python tools/clean_local.py` removes screenshots and traces on demand
 - **input validation** — flow fields are charset-checked, unknown operations are refused
+- **pixel-level change detection** — `assert_changed` / `assert_stable` hash raw screencap pixels, so two identical frames always hash identically
 
 ## Documents
 

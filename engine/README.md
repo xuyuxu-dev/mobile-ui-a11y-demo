@@ -42,7 +42,7 @@ python engine.py flows/settings-demo.json --serial <SN> --allow-taps
 ]}
 ```
 
-'支持：
+支持：
 
 | op | 作用 |
 |---|---|
@@ -52,10 +52,10 @@ python engine.py flows/settings-demo.json --serial <SN> --allow-taps
 | `wait_gone` | 轮询直到文字消失（弹窗/toast） |
 | `tap_text` | 按文字定位并点击中心（默认 dry-run 只报坐标） |
 | `back` / `home` | 返回 / 回桌面 |
-| `assert_changed` | **视觉通道**：截图哈希变化（不依赖无障碍树） |
-| `assert_stable` | 连续两帧哈希一致（判断动画结束） |
+| `assert_changed` | **视觉通道**：像素哈希变化（`screencap` 原始像素，不依赖无障碍树，也不受 PNG 编码影响） |
+| `assert_stable` | 轮询到连续两帧像素哈希一致（判断动画结束） |
 | `ocr_contains` | **OCR 通道**：截图识别文字，断言包含某段（用于无障碍无文字的页面） |
-| `tap_ocr_text` | **OCR 通道**：找到文字包围盒并点击其中心 |'
+| `tap_ocr_text` | **OCR 通道**：找到文字包围盒并点击其中心 |
 
 ## 三条硬约束
 

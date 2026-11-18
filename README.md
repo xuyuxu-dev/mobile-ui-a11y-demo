@@ -150,7 +150,7 @@ records on Windows, so a second writer exits with code 4. `--force` takes over a
 - **redaction by default** — traces mask page-derived text unless `--no-redact` is passed
 - **local cleanup** — `python tools/clean_local.py` removes screenshots and traces on demand
 - **input validation** — flow fields are charset-checked, unknown operations are refused
-- **pixel-level change detection** — `assert_changed` / `assert_stable` hash raw screencap pixels; the comparison baseline is captured before the preceding action, not when the assertion starts
+- **pixel-level change detection** — `assert_changed` / `assert_stable` hash raw screencap pixels; the comparison baseline is captured before the preceding action, and the top 5% (status bar clock/battery) is excluded
 
 ## Documents
 

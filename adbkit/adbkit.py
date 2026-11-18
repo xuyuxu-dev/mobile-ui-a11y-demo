@@ -170,8 +170,12 @@ def screencap_raw(adb, serial):
     return p.stdout
 
 
-def pixel_body(raw):
-    """Strip the raw screencap header (12 or 16 bytes) and return the pixel bytes."""
+def pixel_body(raw, skip_top_ratio=0.0):
+    """Strip the raw screencap header and optionally the top rows (status bar).
+
+    The status bar carries a clock and a battery animation; hashing it makes two otherwise
+    identical frames differ across a minute boundary.
+    """
     if not raw or len(raw) < 16:
         return None
     w = int.from_bytes(raw[0:4], "little")
@@ -179,14 +183,21 @@ def pixel_body(raw):
     if w <= 0 or h <= 0:
         return None
     need = w * h * 4
+    body = None
     if len(raw) - 16 == need:
-        return raw[16:]
-    if len(raw) - 12 == need:
-        return raw[12:]
-    return None
+        body = raw[16:]
+    elif len(raw) - 12 == need:
+        body = raw[12:]
+    if body is None:
+        return None
+    if skip_top_ratio > 0:
+        ratio = min(max(skip_top_ratio, 0.0), 0.9)
+        skip_rows = int(h * ratio)
+        body = body[skip_rows * w * 4:]
+    return body
 
 
-def screen_hash(adb, serial):
+def screen_hash(adb, serial, skip_top_ratio=0.0):
     """Hash the pixels, not the PNG container.
 
     Two identical frames can produce different PNG bytes (encoder metadata), which made
@@ -194,7 +205,7 @@ def screen_hash(adb, serial):
     """
     data = screencap_raw(adb, serial)
     if data:
-        body = pixel_body(data)
+        body = pixel_body(data, skip_top_ratio)
         if body is not None:
             return hashlib.md5(body).hexdigest()
     png = screencap(adb, serial)

@@ -47,8 +47,8 @@ class FakeDevice:
             self.state = "home"
         return 0, "", ""
 
-    def screen_hash(self, adb, serial):
-        return "hash-" + self.state
+    def screen_hash(self, adb, serial, skip_top_ratio=0.0):
+        return "hash-%s-%s" % (self.state, skip_top_ratio)
 
 
 REAL = (eng.ac.dump_current, eng.ac.adb_shell, eng.ac.screen_hash)

@@ -33,6 +33,12 @@ def main():
     same = kit.pixel_body(raw(2, 3, 16)) == kit.pixel_body(raw(2, 3, 12))
     cases.append(("header length does not matter", same))
 
+    ten = raw(10, 10, 16)
+    cases.append(("crop 0 keeps every row", len(kit.pixel_body(ten)) == 10 * 10 * 4))
+    cases.append(("crop 50% keeps half the rows", len(kit.pixel_body(ten, 0.5)) == 10 * 5 * 4))
+    cases.append(("crop is clamped below 90%", len(kit.pixel_body(ten, 2.0)) == 10 * 1 * 4))
+    cases.append(("negative crop is ignored", len(kit.pixel_body(ten, -1)) == 10 * 10 * 4))
+
     bad = 0
     for name, ok in cases:
         print("%-4s %s" % ("ok" if ok else "FAIL", name))

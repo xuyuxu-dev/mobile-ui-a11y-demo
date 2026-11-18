@@ -87,9 +87,12 @@ def validate_flow(flow, caps=None, allow_any=False):
     return True
 
 
+HASH_SKIP_TOP = 0.05   # 忽略状态栏：时钟/电池动画会让相同画面产生不同哈希
+
+
 def screen_hash(adb, serial):
     """截图哈希走公共包 adbkit，保持两个包同一实现。"""
-    return ac.screen_hash(adb, serial)
+    return ac.screen_hash(adb, serial, skip_top_ratio=HASH_SKIP_TOP)
 
 
 def bounds_center(bounds):

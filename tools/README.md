@@ -23,12 +23,14 @@ python tools/compose_gif.py     # 输出 docs/assets/demo.gif
 | `soak.py --writers N` | 锁竞争：只允许一个采集进程写同一文件，其余以退出码 4 拒绝 |
 | `soak.py --append-race N` | 观察用：无锁并发追加会对同一文件造成什么 |
 | `check_cli.py` | 冒烟：每个 argparse 入口执行 `--help`，抓导入/接线错误 |
+| `cold_start_check.py` | 冷启动回归：先让设备休眠，再依次跑 3 个 demo 与 3 条流程 |
 
 ```bash
 python tools/soak.py --serial <SN> --dumps 30
 python tools/soak.py --serial <SN> --writers 3 --out data/soak.jsonl
 python tools/soak.py --append-race 4 --out data/race.jsonl
 python tools/check_cli.py
+python tools/cold_start_check.py --serial <SN>
 ```
 
 ## 前提

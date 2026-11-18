@@ -52,7 +52,7 @@ python engine.py flows/settings-demo.json --serial <SN> --allow-taps
 | `wait_gone` | 轮询直到文字消失（弹窗/toast） |
 | `tap_text` | 按文字定位并点击中心（默认 dry-run 只报坐标） |
 | `back` / `home` | 返回 / 回桌面 |
-| `assert_changed` | **视觉通道**：像素哈希变化（`screencap` 原始像素，不依赖无障碍树，也不受 PNG 编码影响） |
+| `assert_changed` | **视觉通道**：与"上一个动作之前的那一帧"比较像素哈希（基准在动作前采集，不是断言时才采集） |
 | `assert_stable` | 轮询到连续两帧像素哈希一致（判断动画结束） |
 | `ocr_contains` | **OCR 通道**：截图识别文字，断言包含某段（用于无障碍无文字的页面） |
 | `tap_ocr_text` | **OCR 通道**：找到文字包围盒并点击其中心 |

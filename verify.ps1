@@ -23,7 +23,8 @@ $steps = @(
     @{ name = "uiauto/contract";      args = @("$root\uiauto\tests\test_uiauto.py") },
     @{ name = "lint/lock";            args = @("$root\lint\tests\test_lock.py") },
     @{ name = "engine/pixel-hash";    args = @("$root\engine\tests\test_screen_hash.py") },
-    @{ name = "tools/cli-smoke";      args = @("$root\tools\check_cli.py") }
+    @{ name = "tools/cli-smoke";      args = @("$root\tools\check_cli.py") },
+    @{ name = "engine/runner";        args = @("$root\engine\tests\test_runner.py") }
 )
 
 $fail = 0

@@ -415,3 +415,15 @@ CI 增加 `pip install -r requirements.txt`。
 
 - `verify.ps1` 连跑 3 次均为 11/11、每次约 13 秒、工作区无污染
 - 设备端 120 次连续 dump 无失败（见第二十一次增补）
+### 2026-11-18 第二十四次增补（Runner 契约测试与变更检测基准）
+
+| # | 项 | 处理 |
+|---|---|---|
+| F73 | `Runner` 的执行逻辑只跑过真机，没有直接测试 | 新增 `engine/tests/test_runner.py`：用假 adb 层覆盖等待、点击坐标、dry-run、变更检测、按键，共 8 例 |
+| F74 | **`assert_changed` 的基准取错了**：基准在断言开始时采集，`[点击, assert_changed]` 永远判"未变化"；在真机上只是靠页面还在动才偶发通过 | 改为在执行动作（launch/tap/back/home）**之前**记录一帧，断言与之比较 |
+
+F74 是新测试直接抓到的：`tap_text` 后再 `assert_changed` 必然失败。真机上的偶发失败（第 140 轮记录）
+很可能与此有关。
+
+验证：`engine/tests/test_runner.py` 8/8；`verify.ps1` 现为 12 道闸门，CI 同步增加一步。
+设备端复测待设备恢复（当前 USB 与 Wi-Fi 均不可达）。

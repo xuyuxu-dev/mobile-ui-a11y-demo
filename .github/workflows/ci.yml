@@ -60,3 +60,6 @@ jobs:
 
       - name: CLI 冒烟（每个入口 --help 必须正常）
         run: python tools/check_cli.py
+
+      - name: Runner 契约（假 adb：等待、点击、dry-run、变更检测）
+        run: python engine/tests/test_runner.py

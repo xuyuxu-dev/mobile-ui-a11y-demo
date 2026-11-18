@@ -26,6 +26,8 @@ import uiauto  # noqa: E402
 import ocr as ocr_mod  # noqa: E402
 
 POLL_MS = 400
+# 会改变画面的操作：执行前记录一帧，供 assert_changed 比较
+ACTION_OPS = {"launch", "tap_text", "tap_ocr_text", "back", "home"}
 DEFAULT_TIMEOUT = 8000
 
 # 流程里的 component/action/package 会被拼进 `adb shell` 命令，
@@ -116,6 +118,7 @@ class Runner:
         self.trace_path = trace_path
         self.log = []
         self.dry_stopped = False   # dry-run 遇到第一次点击后，后续步标记为 SKIP
+        self.pre_action_hash = None
         self.faults = faults or {}
         self.redact = redact
         self.dump_count = 0
@@ -213,8 +216,9 @@ class Runner:
     def run(self, flow):
         for i, step in enumerate(flow["steps"], 1):
             op = step.get("op")
-            if op == "assert_changed":
-                step["_hash"] = screen_hash(self.adb, self.serial)   # 动作前的基准
+            if op in ACTION_OPS:
+                # 变更检测的基准必须是"这个动作发生之前"的一帧
+                self.pre_action_hash = screen_hash(self.adb, self.serial)
             if self.dry_stopped and op != "launch":
                 self.trace(i, op, True, "SKIP（dry-run 未实际点击）")
                 continue
@@ -331,8 +335,8 @@ class Runner:
                     return False
 
             elif op == "assert_changed":
-                # 视觉通道：截图哈希判断"画面变了没有"，完全不依赖无障碍树。
-                before = step.get("_hash") or screen_hash(self.adb, self.serial)
+                # 视觉通道：像素哈希判断"画面变了没有"，基准取上一个动作之前的一帧
+                before = self.pre_action_hash or screen_hash(self.adb, self.serial)
                 deadline = time.time() + step.get("timeout", DEFAULT_TIMEOUT) / 1000.0
                 changed = False
                 while time.time() < deadline:

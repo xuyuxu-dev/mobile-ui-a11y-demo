@@ -112,9 +112,10 @@ python lint/tests/selftest.py
 python engine/tests/selftest_engine.py
 ```
 
-Windows: `powershell -ExecutionPolicy Bypass -File .\verify.ps1` runs all ten checks
+Windows: `powershell -ExecutionPolicy Bypass -File .\verify.ps1` runs all eleven checks
 (fixture self-tests, schema, privacy, baseline, engine self-test, CLI and input contracts,
-the overlay and lock policies, and the pixel-hash parser).
+the foreground and lock policies, the pixel-hash parser, and a `--help` smoke of every
+entry point).
 
 ## Exit codes
 

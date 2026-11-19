@@ -503,3 +503,18 @@ F74 是新测试直接抓到的：`tap_text` 后再 `assert_changed` 必然失�
 
 说明：首次连接后第一次跑 `calculator-visual` 失败过一次（启动被丢弃），连续复跑 3 次均通过，
 与之前记录的"首次唤醒启动可能丢失"属同一现象，`uiauto.launch` 已具备一次重试。
+### 2026-11-19 第三十次增补（本地映射自动生成）
+
+| # | 项 | 处理 |
+|---|---|---|
+| F84 | `local.json` 需要手工编写，换机器容易漏 | 新增 `tools/make_local.py`：扫描仓库占位名 → 读取设备包名 → 关键词排序 → 生成映射 |
+| F85 | 映射可能与设备实际安装的包不一致 | 生成时校验包是否在设备上，不一致会标注 |
+
+行为：
+
+- 自动发现占位名（扫描 json/py/md/ps1），新增占位名无需改脚本
+- 默认保留已有映射；`--refresh` 全部重匹配；`--set` 手工指定
+- `--packages-file` 可离线生成；`--dry-run` 只预览
+
+实测：4 个占位名全部解析并在设备上存在；`file-manager` 页面由 `com.huawei.hidisk`
+改为更准确的 `com.huawei.filemanager`（采集到 `FileManager` activity）。

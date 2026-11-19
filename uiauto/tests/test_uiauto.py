@@ -77,6 +77,14 @@ def alias_cases():
     cases.append(("unknown name passes through", ui.resolve("com.android.settings", table) == "com.android.settings"))
     cases.append(("known name is mapped", ui.resolve("com.vendor.calculator", table) == "com.real.calc"))
     cases.append(("missing file yields empty map", ui.load_aliases(os.path.join(path, "nope.json")) == {}))
+    pkgs = ["com.example.calculator", "com.other.calc", "com.example.filemanager",
+            "com.example.hidisk", "com.example.securitymgr", "com.unrelated"]
+    cases.append(("suggests a calculator", ui.suggest_packages(pkgs, "com.vendor.calculator")[0] == "com.example.calculator"))
+    cases.append(("falls back to the last token", ui.suggest_packages(pkgs, "com.vendor.unrelated") == ["com.unrelated"]))
+    cases.append(("file manager hints prefer filemanager",
+                  ui.suggest_packages(pkgs, "com.vendor.filemanager")[0] == "com.example.filemanager"))
+    cases.append(("limit is respected", len(ui.suggest_packages(pkgs, "com.vendor.filemanager", limit=1)) == 1))
+    cases.append(("unknown placeholder returns nothing", ui.suggest_packages(pkgs, "com.vendor.nothing") == []))
     bad = 0
     for name, ok in cases:
         print("%-4s %s" % ("ok" if ok else "FAIL", name))

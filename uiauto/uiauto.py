@@ -38,6 +38,33 @@ def load_aliases(path=None):
     return {str(k): str(v) for k, v in aliases.items() if k and v}
 
 
+PACKAGE_HINTS = {
+    "calculator": ["calculator", "calc"],
+    "filemanager": ["filemanager", "hidisk", "files"],
+    "systemmanager": ["systemmanager", "systemui"],
+    "security": ["securitymgr", "security", "privacycenter", "privacy"],
+}
+
+
+def suggest_packages(packages, placeholder, limit=5):
+    """Rank installed packages that could stand in for a placeholder name.
+
+    `com.vendor.calculator` looks for packages containing "calculator"; ambiguous
+    placeholders (security) return several candidates so the caller can show them.
+    """
+    token = str(placeholder).rsplit(".", 1)[-1].lower()
+    hints = PACKAGE_HINTS.get(token, [token])
+    scored = []
+    for pkg in packages:
+        low = pkg.lower()
+        for rank, hint in enumerate(hints):
+            if hint and hint in low:
+                scored.append((rank, len(pkg), pkg))
+                break
+    scored.sort()
+    return [pkg for _, _, pkg in scored[:limit]]
+
+
 def resolve(name, aliases=None):
     """Map a placeholder to the local name; unknown names pass through unchanged."""
     if not name:

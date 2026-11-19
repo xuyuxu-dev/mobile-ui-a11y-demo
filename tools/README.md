@@ -24,6 +24,7 @@ python tools/compose_gif.py     # 输出 docs/assets/demo.gif
 | `soak.py --append-race N` | 观察用：无锁并发追加会对同一文件造成什么 |
 | `check_cli.py` | 冒烟：每个 argparse 入口执行 `--help`，抓导入/接线错误 |
 | `cold_start_check.py` | 冷启动回归：先让设备休眠，再依次跑 3 个 demo 与 3 条流程 |
+| `make_local.py` | 扫描仓库里的 `com.vendor.*` 占位名，按设备包名生成 `local.json` |
 
 ```bash
 python tools/soak.py --serial <SN> --dumps 30

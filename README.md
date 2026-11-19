@@ -132,6 +132,18 @@ at the repository root (gitignored):
 }
 ```
 
+Generate it from the connected device; placeholders are discovered by scanning the
+repository, so a new one is picked up automatically:
+
+```bash
+python tools/make_local.py --serial <SN>     # write local.json
+python tools/make_local.py --dry-run         # show the mapping first
+python tools/make_local.py --set com.vendor.calculator=com.example.calc
+```
+
+Existing entries are kept unless `--refresh` is passed; packages that are not installed on
+the device are flagged.
+
 The collector, the flow engine, the analyzer and the experiment scripts all resolve the
 mapping at load time. Without the file the placeholders are used as-is, and the engine
 prints a hint when a flow still references one.

@@ -485,3 +485,21 @@ F74 是新测试直接抓到的：`tap_text` 后再 `assert_changed` 必然失�
 
 验证：`verify.ps1` 12/12；`uiauto` 契约 14/14（新增 4 个别名用例）；analyze 对 10 个应用分类，
 未分类 0；`git grep` 厂商关键词 0 处。
+### 2026-11-19 第二十九次增补（别名映射的设备验证）
+
+| # | 项 | 结果 |
+|---|---|---|
+| F83 | 占位包名在真机上是否真的可用 | 已验证：`calculator-visual` 连续 3 次通过；`file-manager` / `calculator` 两个包名页采集成功；26 页全量采集与基线一致 |
+
+明细：
+
+| 项目 | 结果 |
+|---|---|
+| `calculator-visual` 连跑 3 次 | 3/3 通过 |
+| 采集器别名（`com.vendor.filemanager` → 真实包） | 采集到 `com.huawei.hidisk/...` |
+| 采集器别名（`com.vendor.calculator`） | 采集到 `com.huawei.calculator/...` |
+| 26 页全量采集 + 基线对比 | 26 页，基线一致（tiny 在 ±1 容差内） |
+| 冷启动回归 2 轮 × 6 项 | 12/12 通过 |
+
+说明：首次连接后第一次跑 `calculator-visual` 失败过一次（启动被丢弃），连续复跑 3 次均通过，
+与之前记录的"首次唤醒启动可能丢失"属同一现象，`uiauto.launch` 已具备一次重试。

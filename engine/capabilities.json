@@ -3,7 +3,7 @@
   "actions": ["android.settings."],
   "packages": [
     "com.android.settings",
-    "com.huawei.calculator",
+    "com.vendor.calculator",
     "com.android.deskclock",
     "com.android.calendar",
     "com.demo.canvas",

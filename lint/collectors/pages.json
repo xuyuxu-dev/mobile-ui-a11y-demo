@@ -23,9 +23,9 @@
     {"label": "deskclock",       "package": "com.android.deskclock"},
     {"label": "calendar",        "package": "com.android.calendar"},
     {"label": "canvas-demo",     "component": "com.demo.canvas/.MainActivity"},
-    {"label": "file-manager",    "package": "com.huawei.hidisk"},
+    {"label": "file-manager",    "package": "com.vendor.filemanager"},
     {"label": "recorder",        "package": "com.android.soundrecorder"},
-    {"label": "calculator",      "package": "com.huawei.calculator"},
+    {"label": "calculator",      "package": "com.vendor.calculator"},
     {"label": "notepad",         "package": "com.example.android.notepad"}
   ]
 }

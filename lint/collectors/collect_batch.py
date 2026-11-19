@@ -58,6 +58,11 @@ def main():
 
     with open(args.pages, "r", encoding="utf-8-sig") as f:
         pages = json.load(f)["pages"]
+    aliases = uiauto.load_aliases()
+    for item in pages:
+        for key in ("package", "component"):
+            if item.get(key):
+                item[key] = uiauto.resolve(item[key], aliases)
 
     density = ac.get_density(adb, serial)
     os.makedirs(os.path.dirname(args.out), exist_ok=True)

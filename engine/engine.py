@@ -45,6 +45,37 @@ def load_capabilities():
         return json.load(f)
 
 
+def apply_aliases(flow, caps):
+    """Map placeholder names (com.vendor.*) to the local packages before validation."""
+    aliases = uiauto.load_aliases()
+    if isinstance(flow, dict) and isinstance(flow.get("steps"), list) and not aliases:
+        placeholders = [step.get(k) for step in flow["steps"] if isinstance(step, dict)
+                        for k in ("package", "component")
+                        if step.get(k) and str(step[k]).startswith("com.vendor.")]
+        if placeholders:
+            print("提示：流程使用了占位包名 %s，请创建 local.json 映射（见 README）" % placeholders[0],
+                  file=sys.stderr)
+    steps = flow.get("steps") if isinstance(flow, dict) else None
+    if isinstance(steps, list):
+        for step in steps:
+            if not isinstance(step, dict):
+                continue
+            for key in ("package", "component"):
+                if step.get(key):
+                    step[key] = uiauto.resolve(step[key], aliases)
+    if caps:
+        for key in ("packages", "components"):
+            if caps.get(key):
+                caps[key] = [uiauto.resolve(v, aliases) for v in caps[key]]
+        allow = caps.get("page_allowlist") or {}
+        if allow:
+            caps["page_allowlist"] = {
+                uiauto.resolve(k, aliases): [uiauto.resolve(v, aliases) for v in vs]
+                for k, vs in allow.items()
+            }
+    return flow, caps
+
+
 def check_target(kind, value, caps, allow_any=False):
     """kind: action / package / component。默认拒绝未登记的目标。"""
     if allow_any or caps is None:
@@ -428,6 +459,7 @@ def main():
         return 2
 
     caps = load_capabilities()
+    flow, caps = apply_aliases(flow, caps)
     try:
         validate_flow(flow, caps, getattr(args, "allow_any", False))
     except ValueError as e:

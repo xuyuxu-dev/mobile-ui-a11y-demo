@@ -69,7 +69,23 @@ def load_page_types():
         return [], "其他"
     with open(path, "r", encoding="utf-8-sig") as f:
         cfg = json.load(f)
-    return [(t["prefix"], t["type"]) for t in cfg.get("types", [])], cfg.get("default", "其他")
+    aliases = _aliases()
+    mapping = [(_resolve(t["prefix"], aliases), t["type"]) for t in cfg.get("types", [])]
+    return mapping, cfg.get("default", "其他")
+
+
+def _aliases():
+    """Placeholders in page_types.json are mapped to local packages for this device."""
+    try:
+        sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.dirname(HERE))))
+        import uiauto
+        return uiauto.load_aliases()
+    except Exception:
+        return {}
+
+
+def _resolve(name, aliases):
+    return aliases.get(name, name)
 
 
 def type_of(pkg, mapping, default):

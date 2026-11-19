@@ -25,14 +25,22 @@ from adbkit import adbkit as kit  # noqa: E402
 import adb_collect as ac  # noqa: E402
 
 COUNT_PATH = "/sdcard/Android/data/com.demo.a11ycount/files/count.json"
+_ALIASES = {}
+try:
+    import uiauto
+    _ALIASES = uiauto.load_aliases()
+except Exception:
+    pass
 PAGES = [
     ("设置主页", {"action": "android.settings.SETTINGS"}),
     ("显示", {"action": "android.settings.DISPLAY_SETTINGS"}),
     ("WiFi", {"action": "android.settings.WIFI_SETTINGS"}),
     ("应用", {"action": "android.settings.APPLICATION_SETTINGS"}),
-    ("计算器", {"package": "com.huawei.calculator"}),
+    ("计算器", {"package": "com.vendor.calculator"}),
     ("自绘夹具", {"component": "com.demo.canvas/.MainActivity"}),
 ]
+# 占位包名在本地映射成真实包名
+PAGES = [(label, {k: _ALIASES.get(v, v) for k, v in cfg.items()}) for label, cfg in PAGES]
 
 
 def run(cmd):

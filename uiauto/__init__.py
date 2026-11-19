@@ -3,8 +3,11 @@
 The public surface is re-exported here so callers write `uiauto.launch(...)`.
 """
 from .uiauto import (  # noqa: F401
+    ALIAS_FILE,
     DEFAULT_POLL_MS,
     LAUNCHER_HINT,
+    load_aliases,
+    resolve,
     ensure_foreground,
     launch,
     launch_action,
@@ -15,7 +18,10 @@ from .uiauto import (  # noqa: F401
 )
 
 __all__ = [
+    "ALIAS_FILE",
     "DEFAULT_POLL_MS",
+    "load_aliases",
+    "resolve",
     "LAUNCHER_HINT",
     "ensure_foreground",
     "launch",

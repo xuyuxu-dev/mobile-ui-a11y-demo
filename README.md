@@ -117,6 +117,25 @@ Windows: `powershell -ExecutionPolicy Bypass -File .\verify.ps1` runs all eleven
 the foreground and lock policies, the pixel-hash parser, and a `--help` smoke of every
 entry point).
 
+## Local package names
+
+The repository ships neutral package names (`com.vendor.calculator`) so that no device
+vendor appears in version control. Point them at the real packages with a `local.json`
+at the repository root (gitignored):
+
+```json
+{
+  "aliases": {
+    "com.vendor.calculator": "com.example.your.calculator",
+    "com.vendor.filemanager": "com.example.your.filemanager"
+  }
+}
+```
+
+The collector, the flow engine, the analyzer and the experiment scripts all resolve the
+mapping at load time. Without the file the placeholders are used as-is, and the engine
+prints a hint when a flow still references one.
+
 ## Exit codes
 
 | code | meaning |

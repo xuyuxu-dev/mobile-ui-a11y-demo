@@ -60,7 +60,7 @@ LinearLayout     360.0   43.0   yes
   Switch   16  
   RadioButton   3  
   SeekBar   2  
-  LinearLayout / HwViewPager   1 / 1  
+  LinearLayout / ViewPager   1 / 1  
 
 26 页里 24 个"无标签"有 16 个是开关。设置行的典型结构是：
 左边 `TextView`（标题）、右边 `Switch`——两者是**兄弟节点**，

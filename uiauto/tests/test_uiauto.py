@@ -65,6 +65,26 @@ def case_launch(name, focuses, want_prefix, want_starts, **kw):
     return ok
 
 
+def alias_cases():
+    import json
+    import tempfile
+    cases = []
+    path = os.path.join(tempfile.mkdtemp(prefix="alias-"), "local.json")
+    with open(path, "w", encoding="utf-8") as f:
+        json.dump({"aliases": {"com.vendor.calculator": "com.real.calc"}}, f)
+    table = ui.load_aliases(path)
+    cases.append(("alias file is applied", table.get("com.vendor.calculator") == "com.real.calc"))
+    cases.append(("unknown name passes through", ui.resolve("com.android.settings", table) == "com.android.settings"))
+    cases.append(("known name is mapped", ui.resolve("com.vendor.calculator", table) == "com.real.calc"))
+    cases.append(("missing file yields empty map", ui.load_aliases(os.path.join(path, "nope.json")) == {}))
+    bad = 0
+    for name, ok in cases:
+        print("%-4s %s" % ("ok" if ok else "FAIL", name))
+        if not ok:
+            bad += 1
+    return len(cases) - bad, len(cases)
+
+
 def main():
     overlay = [
         ("already foreground", ["com.demo.canvas/.MainActivity"], "com.demo.canvas", False, "com.demo.canvas"),
@@ -72,7 +92,7 @@ def main():
          "com.demo.canvas", True, "com.demo.canvas"),
         ("overlay does not go away", ["com.android.systemui/.UsbModeChooser"],
          "com.demo.canvas", True, "com.android.systemui"),
-        ("real app left alone", ["com.android.settings/.HWSettings"], "com.demo.canvas", False, "com.android.settings"),
+        ("real app left alone", ["com.android.settings/.Settings"], "com.demo.canvas", False, "com.android.settings"),
         ("empty focus", [""], "com.demo.canvas", False, ""),
     ]
     passed = sum(1 for c in overlay if case_overlay(*c))
@@ -80,11 +100,11 @@ def main():
     launch_cases = [
         ("launch: becomes foreground", ["com.demo.canvas/.MainActivity"],
          "com.demo.canvas", 1, {"component": "com.demo.canvas/.MainActivity"}),
-        ("launch: dropped start retried", ["com.android.settings/.HWSettings"] * 2 + ["com.demo.canvas/.MainActivity"],
+        ("launch: dropped start retried", ["com.android.settings/.Settings"] * 2 + ["com.demo.canvas/.MainActivity"],
          "com.demo.canvas", 2, {"component": "com.demo.canvas/.MainActivity", "wait": 0.3}),
-        ("launch: never foreground", ["com.android.settings/.HWSettings"] * 8,
+        ("launch: never foreground", ["com.android.settings/.Settings"] * 8,
          "com.android.settings", 2, {"component": "com.demo.canvas/.MainActivity"}),
-        ("launch: action with expected package", ["com.android.settings/.HWSettings"],
+        ("launch: action with expected package", ["com.android.settings/.Settings"],
          "com.android.settings", 1, {"action": "android.settings.SETTINGS", "expect_package": "com.android.settings"}),
         ("launch: clear_task adds the flag", ["com.demo.canvas/.MainActivity"],
          "com.demo.canvas", 1, {"component": "com.demo.canvas/.MainActivity", "clear_task": True}),
@@ -92,7 +112,9 @@ def main():
     for name, focuses, prefix, starts, kw in launch_cases:
         passed += case_launch(name, focuses, prefix, starts, **kw)
 
-    total = len(overlay) + len(launch_cases)
+    alias_ok, alias_total = alias_cases()
+    passed += alias_ok
+    total = len(overlay) + len(launch_cases) + alias_total
     print("uiauto contract: %d/%d" % (passed, total))
     return 0 if passed == total else 1
 

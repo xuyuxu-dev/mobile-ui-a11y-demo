@@ -13,3 +13,4 @@ _ocrcheck*.png
 *.bundle
 _warm.png
 *.lock
+local.json

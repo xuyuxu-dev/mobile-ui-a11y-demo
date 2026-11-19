@@ -117,7 +117,7 @@ nodes=8  interactive=0  unlabeled=0  undersized=0  invisible=0  zero=False
 
 ```
 1  home           OK    回到桌面
-2  launch         OK    com.huawei.calculator
+2  launch         OK    com.vendor.calculator
 3  tap_text       OK    点击 (418,1671) 5
 4  assert_changed OK    画面已变化
 ```

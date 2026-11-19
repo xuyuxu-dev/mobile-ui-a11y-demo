@@ -7,6 +7,7 @@ makes a policy decision about *what is on screen* — starting an activity, wait
 its package to own the foreground, dismissing a system overlay — lives here so the
 collector, the flow engine, the demos and the benchmark share one implementation.
 """
+import json
 import os
 import sys
 import time
@@ -18,6 +19,31 @@ if ROOT not in sys.path:
 from adbkit import adbkit as kit  # noqa: E402
 
 LAUNCHER_HINT = "launcher"
+ALIAS_FILE = os.path.join(ROOT, "local.json")
+
+
+def load_aliases(path=None):
+    """Read the local placeholder → real name mapping.
+
+    The repository ships neutral names (com.vendor.calculator); a real device uses the
+    vendor packages, which are kept out of version control in local.json.
+    """
+    path = path or ALIAS_FILE
+    try:
+        with open(path, encoding="utf-8") as f:
+            data = json.load(f)
+    except (OSError, ValueError):
+        return {}
+    aliases = data.get("aliases") or {}
+    return {str(k): str(v) for k, v in aliases.items() if k and v}
+
+
+def resolve(name, aliases=None):
+    """Map a placeholder to the local name; unknown names pass through unchanged."""
+    if not name:
+        return name
+    table = aliases if aliases is not None else load_aliases()
+    return table.get(name, name)
 DEFAULT_POLL_MS = 250
 
 

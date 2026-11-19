@@ -472,3 +472,16 @@ F74 是新测试直接抓到的：`tap_text` 后再 `assert_changed` 必然失�
 | 冷启动回归（裁剪后） | 6/6 通过 |
 | `pixel_body` 裁剪用例 | 10/10（含 0%、50%、越界、负值） |
 | `verify.ps1` | 12/12 |
+### 2026-11-19 第二十八次增补（供应商与第一人称）
+
+| # | 项 | 处理 |
+|---|---|---|
+| F80 | 仓库中出现测试机型厂商的包名（`com.huawei.*`）与类名（`HwViewPager`） | 统一替换为 `com.vendor.*` / `ViewPager`；新增 `local.json`（gitignore）做占位到真实包名的映射 |
+| F81 | 文档与注释含第一人称（"我测了""我算错的那几版""我们看到的树"） | 改为中性表述 |
+| F82 | 占位包名在没有映射时会以"启动失败"收场，提示不明确 | 引擎检测到 `com.vendor.*` 且无映射时打印创建 `local.json` 的提示 |
+
+映射消费方：采集器（pages.json）、引擎（flow 与 capabilities）、分析器（page_types 前缀）、
+实验脚本（PAGES）。README 增加 "Local package names" 一节说明格式。
+
+验证：`verify.ps1` 12/12；`uiauto` 契约 14/14（新增 4 个别名用例）；analyze 对 10 个应用分类，
+未分类 0；`git grep` 厂商关键词 0 处。

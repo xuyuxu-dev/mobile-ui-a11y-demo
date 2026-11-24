@@ -1,6 +1,8 @@
 # UI Accessibility Audit & Automation Toolkit (demo)
 
 **A read-only Android UI accessibility auditor plus a small JSON-driven flow engine.**
+
+[Read the write-up online](https://xuyuxu-dev.github.io/mobile-ui-a11y-demo/) · [中文实测报告](https://xuyuxu-dev.github.io/mobile-ui-a11y-demo/)
 The auditor quantifies how much of an interface is exposed to accessibility services
 (label distance, tap-target size, pages with zero interactive nodes) without clicking anything.
 The engine operates pages whose accessibility tree is empty, using screenshot geometry,

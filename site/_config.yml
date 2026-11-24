@@ -1,0 +1,8 @@
+title: UI Accessibility Audit
+description: 只读审计安卓界面的可访问性，附 26 页实测数据
+theme: jekyll-theme-cayman
+markdown: kramdown
+plugins:
+  - jekyll-relative-links
+relative_links:
+  enabled: true
